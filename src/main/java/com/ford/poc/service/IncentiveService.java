@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.ford.poc.eo.IncentiveProgram;
+import com.ford.poc.eo.IncentiveStructure;
 
 @Service
 public interface IncentiveService {
@@ -12,4 +13,10 @@ public interface IncentiveService {
 	public String saveIncentiveProgram(IncentiveProgram incProgram);
 	
 	public List<IncentiveProgram> getAllIncentiveProgram();
+	
+	public IncentiveProgram getIncentiveProgram(String programCode) throws Exception;
+	
+	public IncentiveStructure saveIncentiveStructure(IncentiveStructure incStructure);
+	
+	public List<IncentiveStructure> getAllIncentiveStructure(String programCode, String productType);
 }
