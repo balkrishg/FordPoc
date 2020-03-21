@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.ford.poc.eo.IncentiveContractSales;
 import com.ford.poc.eo.IncentiveProgram;
 import com.ford.poc.eo.IncentiveStructure;
 
@@ -21,4 +22,6 @@ public interface IncentiveService {
 	public List<IncentiveStructure> getAllIncentiveStructureByProgramCode(String programCode);
 
 	public List<IncentiveStructure> getAllIncentiveStructure(String programCode, String productType);
+
+	public List<IncentiveContractSales> getData(String programCode) throws Exception;
 }

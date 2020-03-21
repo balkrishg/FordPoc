@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ford.poc.bo.IncentiveProgramBO;
 import com.ford.poc.bo.IncentiveStructureBO;
+import com.ford.poc.eo.IncentiveContractSales;
 import com.ford.poc.eo.IncentiveProgram;
 import com.ford.poc.eo.IncentiveStructure;
 import com.ford.poc.helper.IncentiveHelper;
@@ -104,6 +105,23 @@ public class IncentiveController {
 			e.printStackTrace();
 		}
 		return response;
+	}
+	
+	@GetMapping("/calculation/{programCode}")
+	public List<IncentiveContractSales> getIncentiveProgramByEffectiveDateAndExpiryDate(@PathVariable("programCode") String programCode) throws Exception {
+		//List<IncentiveContractSales> incStructureList = null;
+		System.out.println("Entered");
+		return incentiveService.getData(programCode);
+		/*List<IncentiveStructureBO> response = new ArrayList<IncentiveStructureBO>();
+		try {
+			incStructureList = incentiveService.getAllIncentiveStructure(programCode,productType);
+			if(incStructureList !=null) {
+				incentiveHelper.convertIncentiveStructureEoListToBoList(incStructureList, response);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;*/
 	}
 
 }
