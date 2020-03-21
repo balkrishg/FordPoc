@@ -49,6 +49,11 @@ public class IncentiveServiceImpl implements IncentiveService {
 	}
 
 	@Override
+	public List<IncentiveStructure> getAllIncentiveStructureByProgramCode(String programCode) {
+		return incentiveStructureRepository.findByProgramCode(programCode);
+	}
+	
+	@Override
 	public List<IncentiveStructure> getAllIncentiveStructure(String programCode, String productType) {
 		return incentiveStructureRepository.findByProgramCodeAndProductType(programCode, productType);
 	}

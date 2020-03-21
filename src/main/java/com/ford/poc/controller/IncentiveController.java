@@ -29,11 +29,6 @@ public class IncentiveController {
 	@Autowired
 	private IncentiveHelper incentiveHelper;
 
-	@GetMapping("/hello")
-	public String hello() {
-		return "hello";
-	}
-
 	@PostMapping("/saveIncentiveProgram")
 	public String saveIncentiveProgram(@RequestBody IncentiveProgramBO request) throws ParseException {
 		IncentiveProgram incProgram = new IncentiveProgram();
@@ -79,9 +74,24 @@ public class IncentiveController {
 		}
 		return response;
 	}
+	
+	@GetMapping("/getAllIncentiveStructureByProgramCode/{programCode}")
+	public List<IncentiveStructureBO> getAllIncentiveStructureByProgramCode(@PathVariable("programCode") String programCode) {
+		List<IncentiveStructure> incStructureList = null;
+		List<IncentiveStructureBO> response = new ArrayList<IncentiveStructureBO>();
+		try {
+			incStructureList = incentiveService.getAllIncentiveStructureByProgramCode(programCode);
+			if(incStructureList !=null) {
+				incentiveHelper.convertIncentiveStructureEoListToBoList(incStructureList, response);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
 
 	@GetMapping("/getAllIncentiveStructure/{programCode}/{productType}")
-	public List<IncentiveStructureBO> getAllIncentiveStructure(@PathVariable("programCode") String programCode,
+	public List<IncentiveStructureBO> getAllIncentiveStructureByProgramCodeAndProductType(@PathVariable("programCode") String programCode,
 			@PathVariable("productType") String productType) {
 		List<IncentiveStructure> incStructureList = null;
 		List<IncentiveStructureBO> response = new ArrayList<IncentiveStructureBO>();

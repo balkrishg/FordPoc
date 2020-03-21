@@ -18,5 +18,7 @@ public interface IncentiveService {
 	
 	public IncentiveStructure saveIncentiveStructure(IncentiveStructure incStructure);
 	
+	public List<IncentiveStructure> getAllIncentiveStructureByProgramCode(String programCode);
+
 	public List<IncentiveStructure> getAllIncentiveStructure(String programCode, String productType);
 }

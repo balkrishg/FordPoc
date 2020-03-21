@@ -75,6 +75,8 @@ public class IncentiveHelper {
 				bo.setIncStructureId(incStructure.getIncStructureId().toString());
 				bo.setProgramCode(incStructure.getProgramCode());
 				bo.setProgramName(incStructure.getProgramName());
+				bo.setDateFrom(formatter.format(incStructure.getDateFrom()));
+				bo.setDateTo(formatter.format(incStructure.getDateTo()));
 				bo.setProductType(incStructure.getProductType());
 				bo.setSubProductType(incStructure.getSubProductType());
 				bo.setProductSaleType(incStructure.getProductSaleType());
