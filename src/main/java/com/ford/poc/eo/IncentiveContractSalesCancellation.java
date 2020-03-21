@@ -51,18 +51,9 @@ public class IncentiveContractSalesCancellation {
 	@Column(name = "CONTRACT_STATUS")
 	private String contractStatus;
 
-	@Column(name = "PRODUCT_CODE")
-	private String productCode;
-
-	@Column(name = "CONTRACT_PLAN_ODOMETER")
-	private Long contractPlanOdometer;
-
 	@Column(name = "CONTRACT_REGISTRATION_DATE")
 	private Date contractRegistrationDate;
 
 	@Column(name = "CONTRACT_CANCELLATION_DATE")
 	private Date contractCancellationDate;
-
-	@Column(name = "CONTRACT_PLAN_TERM")
-	private Integer contractPlanTerm;
 }

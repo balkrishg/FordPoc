@@ -42,9 +42,6 @@ public class IncentiveContractSales {
 	@Column(name = "NO_OF_CLAIMS_ALLOWED")
 	private Integer noOfClaimsAllowed;
 
-	@Column(name = "NO_OF_CLAIMS_USED")
-	private Integer noOfClaimsUsed;
-
 	@Column(name = "PRODUCT_SALE_TYPE")
 	private String productSaleType;
 
@@ -54,15 +51,6 @@ public class IncentiveContractSales {
 	@Column(name = "CONTRACT_STATUS")
 	private String contractStatus;
 
-	@Column(name = "PRODUCT_CODE")
-	private String productCode;
-
-	@Column(name = "CONTRACT_PLAN_ODOMETER")
-	private Long contractPlanOdometer;
-
 	@Column(name = "CONTRACT_REGISTRATION_DATE")
 	private Date contractRegistrationDate;
-
-	@Column(name = "CONTRACT_PLAN_TERM")
-	private Integer contractPlanTerm;
 }
