@@ -10,11 +10,8 @@ import lombok.Setter;
 public class IncentiveProgramBO {		 
 	  private String programCode;
 	  private String programName;	  
-	  private String scheduleService;
-	  private String standardSSP;
-	  private String freeSSP;
-	  private String flexiSSP;
-	  private String flexiEW;
+	  private String dateFrom;
+	  private String dateTo;
 	  private String status;
 	  private String statusMsg;
 }

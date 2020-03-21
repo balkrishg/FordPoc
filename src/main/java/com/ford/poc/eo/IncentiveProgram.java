@@ -1,20 +1,24 @@
 package com.ford.poc.eo;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 
 @Entity
 @Table(name = "INC_PGM_DATA")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class IncentiveProgram {
 	
 	  @Id
@@ -24,18 +28,10 @@ public class IncentiveProgram {
 	  @Column(name = "PROGRAM_NAME", nullable = false)
 	  private String programName;
 	  
-	  @Column(name = "SCHEDULE_SERVICE", nullable = false)
-	  private String scheduleService;
+	  @Column(name = "DATE_FROM", nullable = false)
+	  private Date dateFrom;
 	  
-	  @Column(name = "STANDARD_SSP", nullable = false)
-	  private String standardSSP;
-	  
-	  @Column(name = "FREE_SSP", nullable = false)
-	  private String freeSSP;
-	  
-	  @Column(name = "FLEXI_SSP", nullable = false)
-	  private String flexiSSP;
-	  
-	  @Column(name = "FLEXI_EW", nullable = false)
-	  private String flexiEW;
+	  @Column(name = "DATE_TO", nullable = false)
+	  private Date dateTo;
+
 }

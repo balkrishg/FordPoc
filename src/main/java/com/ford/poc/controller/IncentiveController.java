@@ -1,5 +1,6 @@
 package com.ford.poc.controller;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,9 @@ public class IncentiveController {
 	}
 
 	@PostMapping("/saveIncentiveProgram")
-	public String saveIncentiveProgram(@RequestBody IncentiveProgram incProgram) {
+	public String saveIncentiveProgram(@RequestBody IncentiveProgramBO request) throws ParseException {
+		IncentiveProgram incProgram = new IncentiveProgram();
+		incentiveHelper.convertIncentiveProgramBoToEo(incProgram, request);
 		return incentiveService.saveIncentiveProgram(incProgram);
 	}
 
@@ -60,13 +63,15 @@ public class IncentiveController {
 	}
 
 	@PostMapping("/saveIncentiveStructure")
-	public IncentiveStructureBO saveIncentiveStructure(@RequestBody IncentiveStructure incStructure) {
-		IncentiveStructure incStructureEO = null;
+	public IncentiveStructureBO saveIncentiveStructure(@RequestBody IncentiveStructureBO request) {
+		IncentiveStructure incStructure = null;
 		IncentiveStructureBO response = new IncentiveStructureBO();
 		try {
-			incStructureEO = incentiveService.saveIncentiveStructure(incStructure);
-			if (incStructureEO != null) {
-				incentiveHelper.convertIncentiveStructureEoToBo(incStructureEO, response);
+			IncentiveStructure incStructureEO = new IncentiveStructure();
+			incentiveHelper.convertIncentiveStructureBoToEo(incStructureEO, request);
+			incStructure = incentiveService.saveIncentiveStructure(incStructureEO);
+			if (incStructure != null) {
+				incentiveHelper.convertIncentiveStructureEoToBo(incStructure, response);
 			}
 		} catch (Exception e) {
 			response.setStatus("Failure");

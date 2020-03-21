@@ -1,5 +1,8 @@
 package com.ford.poc.helper;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -12,22 +15,31 @@ import com.ford.poc.eo.IncentiveStructure;
 @Service
 public class IncentiveHelper {
 
+	DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+
+	public void convertIncentiveProgramBoToEo(IncentiveProgram incProgram, IncentiveProgramBO request)
+			throws ParseException {
+		incProgram.setProgramCode(request.getProgramCode());
+		incProgram.setProgramName(request.getProgramName());
+		incProgram.setDateFrom(formatter.parse(request.getDateFrom()));
+		incProgram.setDateTo(formatter.parse(request.getDateTo()));
+	}
+
 	public void convertIncentiveProgramEoToBo(IncentiveProgram incProgram, IncentiveProgramBO response) {
 		response.setProgramCode(incProgram.getProgramCode());
 		response.setProgramName(incProgram.getProgramName());
-		response.setScheduleService(incProgram.getScheduleService());
-		response.setStandardSSP(incProgram.getStandardSSP());
-		response.setFreeSSP(incProgram.getFreeSSP());
-		response.setFlexiSSP(incProgram.getFlexiSSP());
-		response.setFlexiEW(incProgram.getFlexiEW());
+		response.setDateFrom(formatter.format(incProgram.getDateFrom()));
+		response.setDateTo(formatter.format(incProgram.getDateTo()));
 		response.setStatus("Success");
 	}
 
-	public void convertIncentiveStructureBoToEo(IncentiveStructure incStructure, IncentiveStructureBO request) {
+	public void convertIncentiveStructureBoToEo(IncentiveStructure incStructure, IncentiveStructureBO request) throws ParseException {
 		incStructure.setIncStructureId(
 				request.getIncStructureId() != null ? Long.parseLong(request.getIncStructureId()) : null);
 		incStructure.setProgramCode(request.getProgramCode());
 		incStructure.setProgramName(request.getProgramName());
+		incStructure.setDateFrom(formatter.parse(request.getDateFrom()));
+		incStructure.setDateTo(formatter.parse(request.getDateTo()));
 		incStructure.setProductType(request.getProductType());
 		incStructure.setSubProductType(request.getSubProductType());
 		incStructure.setProductSaleType(request.getProductSaleType());
@@ -42,6 +54,8 @@ public class IncentiveHelper {
 		response.setIncStructureId(incStructure.getIncStructureId().toString());
 		response.setProgramCode(incStructure.getProgramCode());
 		response.setProgramName(incStructure.getProgramName());
+		response.setDateFrom(formatter.format(incStructure.getDateFrom()));
+		response.setDateTo(formatter.format(incStructure.getDateTo()));
 		response.setProductType(incStructure.getProductType());
 		response.setSubProductType(incStructure.getSubProductType());
 		response.setProductSaleType(incStructure.getProductSaleType());
