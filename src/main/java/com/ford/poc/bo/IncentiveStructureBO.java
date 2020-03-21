@@ -16,7 +16,7 @@ public class IncentiveStructureBO {
 	  private String productType;
 	  private String subProductType;
 	  private String productSaleType;
-	  private String serviceType;
+	  private String contractType;
 	  private String recipient;
 	  private String noOfServices;
 	  private String performanceTarget;

@@ -15,7 +15,7 @@ import com.ford.poc.eo.IncentiveStructure;
 @Service
 public class IncentiveHelper {
 
-	DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+	DateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 
 	public void convertIncentiveProgramBoToEo(IncentiveProgram incProgram, IncentiveProgramBO request)
 			throws ParseException {
@@ -33,7 +33,8 @@ public class IncentiveHelper {
 		response.setStatus("Success");
 	}
 
-	public void convertIncentiveStructureBoToEo(IncentiveStructure incStructure, IncentiveStructureBO request) throws ParseException {
+	public void convertIncentiveStructureBoToEo(IncentiveStructure incStructure, IncentiveStructureBO request)
+			throws ParseException {
 		incStructure.setIncStructureId(
 				request.getIncStructureId() != null ? Long.parseLong(request.getIncStructureId()) : null);
 		incStructure.setProgramCode(request.getProgramCode());
@@ -43,7 +44,7 @@ public class IncentiveHelper {
 		incStructure.setProductType(request.getProductType());
 		incStructure.setSubProductType(request.getSubProductType());
 		incStructure.setProductSaleType(request.getProductSaleType());
-		incStructure.setServiceType(request.getServiceType());
+		incStructure.setContractType(request.getContractType());
 		incStructure.setRecipient(request.getRecipient());
 		incStructure.setNoOfServices(Integer.parseInt(request.getNoOfServices()));
 		incStructure.setPerformanceTarget(request.getPerformanceTarget());
@@ -59,7 +60,7 @@ public class IncentiveHelper {
 		response.setProductType(incStructure.getProductType());
 		response.setSubProductType(incStructure.getSubProductType());
 		response.setProductSaleType(incStructure.getProductSaleType());
-		response.setServiceType(incStructure.getServiceType());
+		response.setContractType(incStructure.getContractType());
 		response.setRecipient(incStructure.getRecipient());
 		response.setNoOfServices(incStructure.getNoOfServices().toString());
 		response.setPerformanceTarget(incStructure.getPerformanceTarget());
@@ -80,7 +81,7 @@ public class IncentiveHelper {
 				bo.setProductType(incStructure.getProductType());
 				bo.setSubProductType(incStructure.getSubProductType());
 				bo.setProductSaleType(incStructure.getProductSaleType());
-				bo.setServiceType(incStructure.getServiceType());
+				bo.setContractType(incStructure.getContractType());
 				bo.setRecipient(incStructure.getRecipient());
 				bo.setNoOfServices(incStructure.getNoOfServices().toString());
 				bo.setPerformanceTarget(incStructure.getPerformanceTarget());

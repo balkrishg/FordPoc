@@ -48,8 +48,8 @@ public class IncentiveStructure {
 	@Column(name = "PRODUCT_SALE_TYPE", nullable = false)
 	private String productSaleType;
 
-	@Column(name = "SERVICE_TYPE", nullable = false)
-	private String serviceType;
+	@Column(name = "CONTRACT_TYPE", nullable = false)
+	private String contractType;
 
 	@Column(name = "RECIPIENT", nullable = false)
 	private String recipient;
