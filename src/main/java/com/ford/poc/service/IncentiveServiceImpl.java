@@ -1,10 +1,14 @@
 package com.ford.poc.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ford.poc.bo.IncentiveContractSalesAndCancellationListBO;
 import com.ford.poc.eo.IncentiveContractSales;
 import com.ford.poc.eo.IncentiveContractSalesCancellation;
 import com.ford.poc.eo.IncentiveProgram;
@@ -16,18 +20,18 @@ import com.ford.poc.repository.IncentiveStructureRepository;
 
 @Service
 public class IncentiveServiceImpl implements IncentiveService {
-
-	@Autowired
-	IncentiveProgramRepository incentiveProgramRepository;
-
-	@Autowired
-	IncentiveStructureRepository incentiveStructureRepository;
 	
 	@Autowired
-	IncentiveContractSalesRepository incentiveContractSalesRepository;
-	
+	private IncentiveProgramRepository incentiveProgramRepository;
+
 	@Autowired
-	IncentiveContractSalesCancellationRepository incentiveContractSalesCancellationRepository;
+	private IncentiveStructureRepository incentiveStructureRepository;
+
+	@Autowired
+	private IncentiveContractSalesRepository incentiveContractSalesRepository;
+
+	@Autowired
+	private IncentiveContractSalesCancellationRepository incentiveContractSalesCancellationRepository;
 
 	@Override
 	public String saveIncentiveProgram(IncentiveProgram incProgram) {
@@ -62,7 +66,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 	public List<IncentiveStructure> getAllIncentiveStructureByProgramCode(String programCode) {
 		return incentiveStructureRepository.findByProgramCode(programCode);
 	}
-	
+
 	@Override
 	public List<IncentiveStructure> getAllIncentiveStructure(String programCode, String productType) {
 		return incentiveStructureRepository.findByProgramCodeAndProductType(programCode, productType);
@@ -70,14 +74,43 @@ public class IncentiveServiceImpl implements IncentiveService {
 
 	@Override
 	public List<IncentiveContractSales> getData(String programCode) throws Exception {
-		IncentiveProgram incProgram = incentiveProgramRepository.findById(programCode).orElseThrow(() -> new Exception("Invalid Program Code : " + programCode));
-		System.out.println("#######IncentiveProgram###### From Date"+incProgram.getDateFrom()+"To Date"+incProgram.getDateTo());
-		List<IncentiveContractSales>  incentiveContractSales = incentiveContractSalesRepository.findByEffectiveDateAndExpiryDate(incProgram.getDateFrom(), incProgram.getDateTo());
-		List<IncentiveContractSalesCancellation> incentiveContractSalesCancellation = incentiveContractSalesCancellationRepository.findByEffectiveDateAndExpiryDate(incProgram.getDateFrom(), incProgram.getDateTo());
-		System.out.println("!!!!!!!!!!!!Cancellation insert!!!!!!!!111111"+incentiveContractSalesCancellation);
-		return incentiveContractSalesRepository.findByEffectiveDateAndExpiryDate(incProgram.getDateFrom(), incProgram.getDateTo());
+		IncentiveProgram incProgram = incentiveProgramRepository.findById(programCode)
+				.orElseThrow(() -> new Exception("Invalid Program Code : " + programCode));
+		System.out.println("#######IncentiveProgram###### From Date" + incProgram.getDateFrom() + "To Date"
+				+ incProgram.getDateTo());
+		List<IncentiveContractSales> incentiveContractSales = incentiveContractSalesRepository
+				.findByEffectiveDateAndExpiryDate(incProgram.getDateFrom(), incProgram.getDateTo());
+		List<IncentiveContractSalesCancellation> incentiveContractSalesCancellation = incentiveContractSalesCancellationRepository
+				.findByEffectiveDateAndExpiryDate(incProgram.getDateFrom(), incProgram.getDateTo());
+		System.out.println("!!!!!!!!!!!!Cancellation insert!!!!!!!!111111" + incentiveContractSalesCancellation);
+		return incentiveContractSalesRepository.findByEffectiveDateAndExpiryDate(incProgram.getDateFrom(),
+				incProgram.getDateTo());
 	}
 
-	
-
+	@Override
+	public Map<String, List<IncentiveContractSalesAndCancellationListBO>> calculateIncentiveForParticularDealer(String dealerCode) {
+		Map<String, List<IncentiveContractSalesAndCancellationListBO>> map = new HashMap<String, List<IncentiveContractSalesAndCancellationListBO>>();
+		List<IncentiveContractSalesAndCancellationListBO> boList = new ArrayList<IncentiveContractSalesAndCancellationListBO>();
+		IncentiveContractSalesAndCancellationListBO bo = new IncentiveContractSalesAndCancellationListBO();
+		getAllIncentiveProgram().stream().forEach(incProgram -> {
+			List<IncentiveContractSales> incentiveContractSalesList = incentiveContractSalesRepository
+					.findByDealerCode(incProgram.getDateFrom(), incProgram.getDateTo(), dealerCode);
+			List<IncentiveContractSalesCancellation> incentiveContractSalesCancellationList = incentiveContractSalesCancellationRepository
+					.findByDealerCode(incProgram.getDateFrom(), incProgram.getDateTo(), dealerCode);
+			
+//			Map<Integer, Integer> salesCount = incentiveContractSalesList.stream().forEach();
+//			incentiveContractSalesList.forEach(p ->
+//			incentiveContractSalesCancellationList.stream()
+//                            .filter(p1 -> p.getDealerCode().equals(p1.getDealerCode()) && 
+//                                    p.getProductType().equals(p1.getProductType()))
+//                            .forEach(list::add));
+			
+			bo.setIncentiveContractSalesList(incentiveContractSalesList);
+			bo.setIncentiveContractSalesCancellationList(incentiveContractSalesCancellationList);			
+			boList.add(bo);
+			map.put(incProgram.getProgramCode(), boList);			
+		});
+		
+		return map;
+	}
 }

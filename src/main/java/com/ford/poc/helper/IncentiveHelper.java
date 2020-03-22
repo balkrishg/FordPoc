@@ -3,12 +3,16 @@ package com.ford.poc.helper;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.ford.poc.bo.IncentiveContractBO;
 import com.ford.poc.bo.IncentiveProgramBO;
 import com.ford.poc.bo.IncentiveStructureBO;
+import com.ford.poc.eo.IncentiveContractSales;
+import com.ford.poc.eo.IncentiveContractSalesCancellation;
 import com.ford.poc.eo.IncentiveProgram;
 import com.ford.poc.eo.IncentiveStructure;
 
@@ -89,6 +93,46 @@ public class IncentiveHelper {
 				responseList.add(bo);
 			}
 		}
+	}
+
+	public List<IncentiveContractBO> convertIncentiveContractSalesEoToBo(
+			List<IncentiveContractSales> incContractSalesList) {
+		List<IncentiveContractBO> incContractList = new ArrayList<IncentiveContractBO>();
+		if (incContractSalesList != null) {
+			for (IncentiveContractSales incContractSales : incContractSalesList) {
+				IncentiveContractBO bo = new IncentiveContractBO();
+				bo.setDealerCode(incContractSales.getDealerCode());
+				bo.setProductType(incContractSales.getProductType());
+				bo.setSubProductType(incContractSales.getSubProductType());
+				bo.setProductSaleType(incContractSales.getProductSaleType());
+				bo.setNoOfClaimsAllowed(incContractSales.getNoOfClaimsAllowed());
+				bo.setProductSaleType(incContractSales.getProductSaleType());
+				bo.setContractType(incContractSales.getContractType());
+				bo.setContractStatus(incContractSales.getContractStatus());
+				bo.setContractRegistrationDate(incContractSales.getContractRegistrationDate());
+			}
+		}
+		return incContractList;
+	}
+
+	public List<IncentiveContractBO> convertIncentiveContractSalesCancellationEoToBo(
+			List<IncentiveContractSalesCancellation> incContractSalesCancellationList) {
+		List<IncentiveContractBO> incContractList = new ArrayList<IncentiveContractBO>();
+		if (incContractSalesCancellationList != null) {
+			for (IncentiveContractSalesCancellation incContractSalesCancellation : incContractSalesCancellationList) {
+				IncentiveContractBO bo = new IncentiveContractBO();
+				bo.setDealerCode(incContractSalesCancellation.getDealerCode());
+				bo.setProductType(incContractSalesCancellation.getProductType());
+				bo.setSubProductType(incContractSalesCancellation.getSubProductType());
+				bo.setProductSaleType(incContractSalesCancellation.getProductSaleType());
+				bo.setNoOfClaimsAllowed(incContractSalesCancellation.getNoOfClaimsAllowed());
+				bo.setProductSaleType(incContractSalesCancellation.getProductSaleType());
+				bo.setContractType(incContractSalesCancellation.getContractType());
+				bo.setContractStatus(incContractSalesCancellation.getContractStatus());
+				bo.setContractRegistrationDate(incContractSalesCancellation.getContractRegistrationDate());
+			}
+		}
+		return incContractList;
 	}
 
 }

@@ -11,10 +11,14 @@ import org.springframework.stereotype.Repository;
 import com.ford.poc.eo.IncentiveContractSales;
 
 @Repository
-public interface IncentiveContractSalesRepository extends JpaRepository<IncentiveContractSales, Long>{
+public interface IncentiveContractSalesRepository extends JpaRepository<IncentiveContractSales, Long> {
 
-	@Query(value="select * from INC_DLR_CONTRACT_SALES i where i.CONTRACT_STATUS in ('A','I','L','P','C') and i.CONTRACT_REGISTRATION_DATE BETWEEN :effectiveDate AND :expiryDate", 
-			nativeQuery=true)
-	List<IncentiveContractSales> findByEffectiveDateAndExpiryDate(@Param("effectiveDate") Date effectiveDate,@Param("expiryDate") Date expiryDate);
+	@Query(value = "SELECT * FROM INC_DLR_CONTRACT_SALES i WHERE i.CONTRACT_STATUS IN ('A','I','L','P','C') AND i.CONTRACT_REGISTRATION_DATE BETWEEN :effectiveDate AND :expiryDate", nativeQuery = true)
+	List<IncentiveContractSales> findByEffectiveDateAndExpiryDate(@Param("effectiveDate") Date effectiveDate,
+			@Param("expiryDate") Date expiryDate);
+
+	@Query(value = "SELECT * FROM INC_DLR_CONTRACT_SALES i WHERE i.CONTRACT_STATUS IN ('A','I','L','P','C') AND i.CONTRACT_REGISTRATION_DATE BETWEEN :effectiveDate AND :expiryDate AND i.DEALER_CODE =:dealerCode", nativeQuery = true)
+	List<IncentiveContractSales> findByDealerCode(@Param("effectiveDate") Date effectiveDate,
+			@Param("expiryDate") Date expiryDate, @Param("dealerCode") String dealerCode);
 
 }
