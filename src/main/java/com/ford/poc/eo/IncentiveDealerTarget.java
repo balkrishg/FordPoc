@@ -38,13 +38,13 @@ public class IncentiveDealerTarget {
 	private String subProductTypeOSP;
 
 	@Column(name = "DEALER_TARGET_OSP")
-	private String dealerTargetOSP;
+	private Integer dealerTargetOSP;
 
 	@Column(name = "SUB_PRD_TYPE_SSP")
 	private String subProductTypeSSP;
 
 	@Column(name = "DEALER_TARGET_SSP")
-	private String dealerTargetSSP;
+	private Integer dealerTargetSSP;
 
 	@Column(name = "DEALER_TARGET_MONTH")
 	private String dealerTargetMonth;

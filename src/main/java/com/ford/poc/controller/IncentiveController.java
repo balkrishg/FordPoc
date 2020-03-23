@@ -2,9 +2,7 @@ package com.ford.poc.controller;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ford.poc.bo.IncentiveContractSalesAndCancellationListBO;
+import com.ford.poc.bo.IncentiveDealerCodesBO;
 import com.ford.poc.bo.IncentiveProgramBO;
 import com.ford.poc.bo.IncentiveStructureBO;
-import com.ford.poc.eo.IncentiveContractSales;
+import com.ford.poc.bo.IncentiveStructureListBO;
+import com.ford.poc.eo.IncentiveCalculation;
+import com.ford.poc.eo.IncentiveDealerTarget;
 import com.ford.poc.eo.IncentiveProgram;
 import com.ford.poc.eo.IncentiveStructure;
 import com.ford.poc.helper.IncentiveHelper;
@@ -41,8 +41,12 @@ public class IncentiveController {
 	}
 
 	@GetMapping("/getAllIncentiveProgram")
-	public List<IncentiveProgram> getAllIncentiveProgram() {
-		return incentiveService.getAllIncentiveProgram();
+	public List<IncentiveProgramBO> getAllIncentiveProgram() {
+		List<IncentiveProgramBO> incentiveProgramBOList = new ArrayList<IncentiveProgramBO>();
+		incentiveHelper.convertIncentiveProgramEoListToBoList(incentiveService.getAllIncentiveProgram(),
+				incentiveProgramBOList);
+		return incentiveProgramBOList;
+
 	}
 
 	@GetMapping("/getIncentiveProgram/{programCode}")
@@ -55,8 +59,7 @@ public class IncentiveController {
 				incentiveHelper.convertIncentiveProgramEoToBo(incProgram, response);
 			}
 		} catch (Exception e) {
-			response.setStatus("Failure");
-			response.setStatusMsg(e.getMessage());
+			e.printStackTrace();
 		}
 		return response;
 	}
@@ -80,15 +83,27 @@ public class IncentiveController {
 	}
 
 	@GetMapping("/getAllIncentiveStructureByProgramCode/{programCode}")
-	public List<IncentiveStructureBO> getAllIncentiveStructureByProgramCode(
+	public IncentiveStructureListBO getAllIncentiveStructureByProgramCode(
 			@PathVariable("programCode") String programCode) {
+		IncentiveProgram incProgram = null;
+		IncentiveProgramBO incProgramBO = new IncentiveProgramBO();
 		List<IncentiveStructure> incStructureList = null;
-		List<IncentiveStructureBO> response = new ArrayList<IncentiveStructureBO>();
+		List<IncentiveStructureBO> incStructureBOList = new ArrayList<IncentiveStructureBO>();
+		IncentiveStructureListBO response = new IncentiveStructureListBO();
 		try {
+			incProgram = incentiveService.getIncentiveProgram(programCode);
+			if (incProgram != null) {
+				incentiveHelper.convertIncentiveProgramEoToBo(incProgram, incProgramBO);
+			}
 			incStructureList = incentiveService.getAllIncentiveStructureByProgramCode(programCode);
 			if (incStructureList != null) {
-				incentiveHelper.convertIncentiveStructureEoListToBoList(incStructureList, response);
+				incentiveHelper.convertIncentiveStructureEoListToBoList(incStructureList, incStructureBOList);
 			}
+			response.setProgramCode(incProgramBO.getProgramCode());
+			response.setProgramName(incProgramBO.getProgramName());
+			response.setDateFrom(incProgramBO.getDateFrom());
+			response.setDateTo(incProgramBO.getDateTo());
+			response.setIncentiveStructureBOList(incStructureBOList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -111,32 +126,30 @@ public class IncentiveController {
 		return response;
 	}
 
-	@GetMapping("/calculation/{programCode}")
-	public List<IncentiveContractSales> getIncentiveProgramByEffectiveDateAndExpiryDate(
-			@PathVariable("programCode") String programCode) throws Exception {
-		// List<IncentiveContractSales> incStructureList = null;
-		System.out.println("Entered");
-		return incentiveService.getData(programCode);
-		/*
-		 * List<IncentiveStructureBO> response = new ArrayList<IncentiveStructureBO>();
-		 * try { incStructureList =
-		 * incentiveService.getAllIncentiveStructure(programCode,productType);
-		 * if(incStructureList !=null) {
-		 * incentiveHelper.convertIncentiveStructureEoListToBoList(incStructureList,
-		 * response); } } catch (Exception e) { e.printStackTrace(); } return response;
-		 */
+	@GetMapping("/getDealerCodes")
+	public List<IncentiveDealerCodesBO> getDealerCodes() throws Exception {
+		List<IncentiveDealerTarget> incDealerTargetList = incentiveService.getAllDealerCodes();
+		List<IncentiveDealerCodesBO> incDealerCodes = new ArrayList<IncentiveDealerCodesBO>();
+		for (IncentiveDealerTarget incDealerTarget : incDealerTargetList) {
+			IncentiveDealerCodesBO incDealerCode = new IncentiveDealerCodesBO();
+			incDealerCode.setLabel(incDealerTarget.getDealerName());
+			incDealerCode.setValue(incDealerTarget.getDealerCode());
+			incDealerCodes.add(incDealerCode);
+		}
+		return incDealerCodes;
 	}
 
 	@PostMapping("/calculateIncentive")
-	public Map<String, Map<String, List<IncentiveContractSalesAndCancellationListBO>>> calculateIncentive(
-			@RequestBody List<String> dealerCodes) throws Exception {
-		Map<String, Map<String, List<IncentiveContractSalesAndCancellationListBO>>> map = new HashMap<String, Map<String, List<IncentiveContractSalesAndCancellationListBO>>>();
+	public List<IncentiveCalculation> calculateIncentive(@RequestBody List<String> dealerCodes) throws Exception {
+		List<IncentiveCalculation> incCalculation = new ArrayList<IncentiveCalculation>();
 		dealerCodes.stream().forEach(dealerCode -> {
-			Map<String, List<IncentiveContractSalesAndCancellationListBO>> listMap = incentiveService
-					.calculateIncentiveForParticularDealer(dealerCode);
-			map.put(dealerCode, listMap);
+			try {
+				incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(dealerCode));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 		});
-		return map;
+		return incCalculation;
 	}
 
 }

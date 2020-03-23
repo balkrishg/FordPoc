@@ -19,7 +19,7 @@ import com.ford.poc.eo.IncentiveStructure;
 @Service
 public class IncentiveHelper {
 
-	DateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+	DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 
 	public void convertIncentiveProgramBoToEo(IncentiveProgram incProgram, IncentiveProgramBO request)
 			throws ParseException {
@@ -34,7 +34,20 @@ public class IncentiveHelper {
 		response.setProgramName(incProgram.getProgramName());
 		response.setDateFrom(formatter.format(incProgram.getDateFrom()));
 		response.setDateTo(formatter.format(incProgram.getDateTo()));
-		response.setStatus("Success");
+	}
+
+	public void convertIncentiveProgramEoListToBoList(List<IncentiveProgram> incProgramList,
+			List<IncentiveProgramBO> responseList) {
+		if (incProgramList != null) {
+			for (IncentiveProgram incProgram : incProgramList) {
+				IncentiveProgramBO bo = new IncentiveProgramBO();
+				bo.setProgramCode(incProgram.getProgramCode());
+				bo.setProgramName(incProgram.getProgramName());
+				bo.setDateFrom(formatter.format(incProgram.getDateFrom()));
+				bo.setDateTo(formatter.format(incProgram.getDateTo()));
+				responseList.add(bo);
+			}
+		}
 	}
 
 	public void convertIncentiveStructureBoToEo(IncentiveStructure incStructure, IncentiveStructureBO request)
@@ -110,6 +123,7 @@ public class IncentiveHelper {
 				bo.setContractType(incContractSales.getContractType());
 				bo.setContractStatus(incContractSales.getContractStatus());
 				bo.setContractRegistrationDate(incContractSales.getContractRegistrationDate());
+				incContractList.add(bo);
 			}
 		}
 		return incContractList;
@@ -130,6 +144,7 @@ public class IncentiveHelper {
 				bo.setContractType(incContractSalesCancellation.getContractType());
 				bo.setContractStatus(incContractSalesCancellation.getContractStatus());
 				bo.setContractRegistrationDate(incContractSalesCancellation.getContractRegistrationDate());
+				incContractList.add(bo);
 			}
 		}
 		return incContractList;

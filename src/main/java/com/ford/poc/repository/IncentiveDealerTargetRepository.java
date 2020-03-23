@@ -8,4 +8,5 @@ import com.ford.poc.eo.IncentiveDealerTarget;
 @Repository
 public interface IncentiveDealerTargetRepository extends JpaRepository<IncentiveDealerTarget, Long>{
 
+	IncentiveDealerTarget findByDealerCode(String dealerCode);
 }
