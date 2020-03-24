@@ -60,15 +60,8 @@ public class IncentiveServiceImpl implements IncentiveService {
 	DateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 
 	@Override
-	public String saveIncentiveProgram(IncentiveProgram incProgram) {
-
-		String status = "";
-		if (incentiveProgramRepository.save(incProgram) != null) {
-			status = "Success";
-		} else {
-			status = "Failed";
-		}
-		return status;
+	public IncentiveProgram saveIncentiveProgram(IncentiveProgram incProgram) {
+		return incentiveProgramRepository.save(incProgram);
 	}
 
 	@Override
@@ -147,7 +140,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 	public List<IncentiveDealerTarget> getAllDealerCodes() {
 		return incentiveDealerTargetRepository.findAll();
 	}
-	
+
 	@Override
 	public IncentiveDealerTarget getDealerTarget(String dealerCode) {
 		return incentiveDealerTargetRepository.findByDealerCode(dealerCode);

@@ -13,7 +13,7 @@ import com.ford.poc.eo.IncentiveStructure;
 @Service
 public interface IncentiveService {
 
-	public String saveIncentiveProgram(IncentiveProgram incProgram);
+	public IncentiveProgram saveIncentiveProgram(IncentiveProgram incProgram);
 
 	public List<IncentiveProgram> getAllIncentiveProgram();
 

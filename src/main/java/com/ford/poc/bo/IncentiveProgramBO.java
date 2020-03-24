@@ -12,4 +12,6 @@ public class IncentiveProgramBO {
 	  private String programName;	  
 	  private String dateFrom;
 	  private String dateTo;
+	  private String status;
+	  private String statusMsg;
 }

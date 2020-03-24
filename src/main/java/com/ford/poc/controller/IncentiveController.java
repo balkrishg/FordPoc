@@ -34,10 +34,22 @@ public class IncentiveController {
 	private IncentiveHelper incentiveHelper;
 
 	@PostMapping("/saveIncentiveProgram")
-	public String saveIncentiveProgram(@RequestBody IncentiveProgramBO request) throws ParseException {
-		IncentiveProgram incProgram = new IncentiveProgram();
-		incentiveHelper.convertIncentiveProgramBoToEo(incProgram, request);
-		return incentiveService.saveIncentiveProgram(incProgram);
+	public IncentiveProgramBO saveIncentiveProgram(@RequestBody IncentiveProgramBO request) throws ParseException {
+
+		IncentiveProgram incProgram = null;
+		IncentiveProgramBO response = new IncentiveProgramBO();
+		try {
+			IncentiveProgram incProgramEO = new IncentiveProgram();
+			incentiveHelper.convertIncentiveProgramBoToEo(incProgramEO, request);
+			incProgram = incentiveService.saveIncentiveProgram(incProgramEO);
+			if (incProgram != null) {
+				incentiveHelper.convertIncentiveProgramEoToBo(incProgram, response);
+			}
+		} catch (Exception e) {
+			response.setStatus("Failure");
+			response.setStatusMsg(e.getMessage());
+		}
+		return response;
 	}
 
 	@GetMapping("/getAllIncentiveProgram")

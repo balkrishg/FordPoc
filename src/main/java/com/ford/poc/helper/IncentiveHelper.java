@@ -34,6 +34,7 @@ public class IncentiveHelper {
 		response.setProgramName(incProgram.getProgramName());
 		response.setDateFrom(formatter.format(incProgram.getDateFrom()));
 		response.setDateTo(formatter.format(incProgram.getDateTo()));
+		response.setStatus("Success");
 	}
 
 	public void convertIncentiveProgramEoListToBoList(List<IncentiveProgram> incProgramList,
