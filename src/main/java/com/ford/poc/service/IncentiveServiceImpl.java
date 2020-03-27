@@ -205,8 +205,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 							&& p.getProductSaleType().equalsIgnoreCase(p1.getProductSaleType())) {
 						if (p.getContractType().equals("ALL")) {
 							if (p1.getContractType().equalsIgnoreCase("Service")
-									|| p1.getContractType().equalsIgnoreCase("Sales")
-									|| p1.getContractType().equalsIgnoreCase("N/A")) {
+									|| p1.getContractType().equalsIgnoreCase("Sales")) {
 								finalList.add(p1);
 								noOfClaimsAllowedCountKey = p.getProductType() + p.getSubProductType()
 										+ p.getNoOfServices();
@@ -269,56 +268,70 @@ public class IncentiveServiceImpl implements IncentiveService {
 
 			Double targetAchievedPercentageSSP = 0.0;
 			Double targetAchievedPercentageOSP = 0.0;
+
 			for (Map.Entry<String, Integer> entry : salesTarget.entrySet()) {
-				if (entry.getKey().contains("SSP") && (dealerTarget.getDealerTargetSSP() != 0)) {
-					targetAchievedPercentageSSP = (double) Math
-							.round((double) (entry.getValue() / (double) dealerTarget.getDealerTargetSSP()) * 100);
-					incCalculationSSP.setTargetAchieved(entry.getValue().toString());
-				} else if (entry.getKey().contains("OSP") && (dealerTarget.getDealerTargetOSP() != 0)) {
-					targetAchievedPercentageOSP = (double) Math
-							.round((double) (entry.getValue() / (double) dealerTarget.getDealerTargetOSP()) * 100);
-					incCalculationOSP.setTargetAchieved(entry.getValue().toString());
+				if (entry.getKey().contains("SSP")) {
+
+					if (entry.getKey().contains("SSP") && (dealerTarget.getDealerTargetSSP() != 0)) {
+						targetAchievedPercentageSSP = (double) Math
+								.round((double) (entry.getValue() / (double) dealerTarget.getDealerTargetSSP()) * 100);
+						incCalculationSSP.setTargetAchieved(entry.getValue().toString());
+					}
+
+					String incentiveCategorySSP = targetAchievedPercentageSSP >= 100.0 ? "100%" : "0%";
+
+					incCalculationSSP.setDealerCode(dealerCode);
+					incCalculationSSP.setDealerName(dealerTarget.getDealerName());
+					incCalculationSSP.setProductType(dealerTarget.getProductType());
+					incCalculationSSP.setSubProductType(dealerTarget.getSubProductTypeSSP());
+					incCalculationSSP.setTarget(dealerTarget.getDealerTargetSSP().toString());
+					incCalculationSSP.setAchievedPercentage(targetAchievedPercentageSSP.toString());
+					incCalculationSSP.setIncentiveCategory(incentiveCategorySSP.toString());
+					incCalculationSSP.setTotal(totalIncentiveSSP.toString());
+
+					for (Map.Entry<String, Integer> entryClaimsCount : noOfClaimsAllowedCount.entrySet()) {
+						if (entryClaimsCount.getKey().contains("SSP2")) {
+							incCalculationSSP.setNoOfClaimsAllowed2(entryClaimsCount.getValue().toString());
+						} else if (entryClaimsCount.getKey().contains("SSP3")) {
+							incCalculationSSP.setNoOfClaimsAllowed3(entryClaimsCount.getValue().toString());
+						} else if (entryClaimsCount.getKey().contains("SSP4")) {
+							incCalculationSSP.setNoOfClaimsAllowed4(entryClaimsCount.getValue().toString());
+						} else if (entryClaimsCount.getKey().contains("SSP7")) {
+							incCalculationSSP.setNoOfClaimsAllowed7(entryClaimsCount.getValue().toString());
+						}
+					}
+
+					incCalculationList.add(incentiveCalculationRepository.save(incCalculationSSP));
+				} else if (entry.getKey().contains("OSP")) {
+
+					if (entry.getKey().contains("OSP") && (dealerTarget.getDealerTargetOSP() != 0)) {
+						targetAchievedPercentageOSP = (double) Math
+								.round((double) (entry.getValue() / (double) dealerTarget.getDealerTargetOSP()) * 100);
+						incCalculationOSP.setTargetAchieved(entry.getValue().toString());
+
+						String incentiveCategoryOSP = targetAchievedPercentageOSP >= 100.0 ? "100%" : "0%";
+
+						incCalculationOSP.setDealerCode(dealerCode);
+						incCalculationOSP.setDealerName(dealerTarget.getDealerName());
+						incCalculationOSP.setProductType(dealerTarget.getProductType());
+						incCalculationOSP.setSubProductType(dealerTarget.getSubProductTypeOSP());
+						incCalculationOSP.setTarget(dealerTarget.getDealerTargetOSP().toString());
+						incCalculationOSP.setAchievedPercentage(targetAchievedPercentageOSP.toString());
+						incCalculationOSP.setIncentiveCategory(incentiveCategoryOSP.toString());
+						incCalculationOSP.setTotal(totalIncentiveOSP.toString());
+						for (Map.Entry<String, Integer> entryClaimsCount : noOfClaimsAllowedCount.entrySet()) {
+							if (entryClaimsCount.getKey().contains("OSP2")) {
+								incCalculationOSP.setNoOfClaimsAllowed2(entryClaimsCount.getValue().toString());
+							} else if (entryClaimsCount.getKey().contains("OSP3")) {
+								incCalculationOSP.setNoOfClaimsAllowed3(entryClaimsCount.getValue().toString());
+							}
+						}
+
+						incCalculationList.add(incentiveCalculationRepository.save(incCalculationOSP));
+					}
+
 				}
 			}
-
-			String incentiveCategorySSP = targetAchievedPercentageSSP >= 100.0 ? "100%" : "0%";
-			String incentiveCategoryOSP = targetAchievedPercentageOSP >= 100.0 ? "100%" : "0%";
-
-			incCalculationSSP.setDealerCode(dealerCode);
-			incCalculationOSP.setDealerCode(dealerCode);
-			incCalculationSSP.setDealerName(dealerTarget.getDealerName());
-			incCalculationOSP.setDealerName(dealerTarget.getDealerName());
-			incCalculationSSP.setProductType(dealerTarget.getProductType());
-			incCalculationOSP.setProductType(dealerTarget.getProductType());
-			incCalculationSSP.setSubProductType(dealerTarget.getSubProductTypeSSP());
-			incCalculationOSP.setSubProductType(dealerTarget.getSubProductTypeOSP());
-			incCalculationSSP.setTarget(dealerTarget.getDealerTargetSSP().toString());
-			incCalculationOSP.setTarget(dealerTarget.getDealerTargetOSP().toString());
-			incCalculationSSP.setAchievedPercentage(targetAchievedPercentageSSP.toString());
-			incCalculationOSP.setAchievedPercentage(targetAchievedPercentageOSP.toString());
-			incCalculationSSP.setIncentiveCategory(incentiveCategorySSP.toString());
-			incCalculationOSP.setIncentiveCategory(incentiveCategoryOSP.toString());
-			incCalculationSSP.setTotal(totalIncentiveSSP.toString());
-			incCalculationOSP.setTotal(totalIncentiveOSP.toString());
-
-			for (Map.Entry<String, Integer> entry : noOfClaimsAllowedCount.entrySet()) {
-				if (entry.getKey().contains("SSP2")) {
-					incCalculationSSP.setNoOfClaimsAllowed2(entry.getValue().toString());
-				} else if (entry.getKey().contains("SSP3")) {
-					incCalculationSSP.setNoOfClaimsAllowed3(entry.getValue().toString());
-				} else if (entry.getKey().contains("SSP4")) {
-					incCalculationSSP.setNoOfClaimsAllowed4(entry.getValue().toString());
-				} else if (entry.getKey().contains("SSP7")) {
-					incCalculationSSP.setNoOfClaimsAllowed7(entry.getValue().toString());
-				} else if (entry.getKey().contains("OSP2")) {
-					incCalculationOSP.setNoOfClaimsAllowed2(entry.getValue().toString());
-				} else if (entry.getKey().contains("OSP3")) {
-					incCalculationOSP.setNoOfClaimsAllowed3(entry.getValue().toString());
-				}
-			}
-
-			incCalculationList.add(incentiveCalculationRepository.save(incCalculationSSP));
-			incCalculationList.add(incentiveCalculationRepository.save(incCalculationOSP));
 		});
 
 		return incCalculationList;
