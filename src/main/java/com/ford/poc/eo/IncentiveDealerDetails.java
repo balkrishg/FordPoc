@@ -13,36 +13,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "INC_DLR_PRD_TARGET")
+@Table(name = "INC_DLR_DETAILS")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IncentiveDealerTarget {
-	
+public class IncentiveDealerDetails {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID", nullable = false, unique = true)
-	private Long id;
-
-	@Column(name = "DEALER_CODE")
+	@Column(name = "DEALER_CODE", nullable = false, unique = true)
 	private String dealerCode;
 
 	@Column(name = "DEALER_NAME")
 	private String dealerName;
-	
-	@Column(name = "SUB_PRD_TYPE_OSP")
-	private String subProductTypeOSP;
-
-	@Column(name = "DEALER_TARGET_OSP")
-	private Integer dealerTargetOSP;
-
-	@Column(name = "SUB_PRD_TYPE_SSP")
-	private String subProductTypeSSP;
-
-	@Column(name = "DEALER_TARGET_SSP")
-	private Integer dealerTargetSSP;
-
-	@Column(name = "DEALER_TARGET_MONTH")
-	private String dealerTargetMonth;
 }

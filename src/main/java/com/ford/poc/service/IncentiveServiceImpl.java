@@ -1,7 +1,6 @@
 package com.ford.poc.service;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +21,7 @@ import com.ford.poc.bo.IncentiveContractBO;
 import com.ford.poc.eo.IncentiveCalculation;
 import com.ford.poc.eo.IncentiveContractSales;
 import com.ford.poc.eo.IncentiveContractSalesCancellation;
+import com.ford.poc.eo.IncentiveDealerDetails;
 import com.ford.poc.eo.IncentiveDealerTarget;
 import com.ford.poc.eo.IncentiveProgram;
 import com.ford.poc.eo.IncentiveStructure;
@@ -29,6 +29,7 @@ import com.ford.poc.helper.IncentiveHelper;
 import com.ford.poc.repository.IncentiveCalculationRepository;
 import com.ford.poc.repository.IncentiveContractSalesCancellationRepository;
 import com.ford.poc.repository.IncentiveContractSalesRepository;
+import com.ford.poc.repository.IncentiveDealerDetailsRepository;
 import com.ford.poc.repository.IncentiveDealerTargetRepository;
 import com.ford.poc.repository.IncentiveProgramRepository;
 import com.ford.poc.repository.IncentiveStructureRepository;
@@ -50,6 +51,9 @@ public class IncentiveServiceImpl implements IncentiveService {
 
 	@Autowired
 	private IncentiveContractSalesCancellationRepository incentiveContractSalesCancellationRepository;
+
+	@Autowired
+	private IncentiveDealerDetailsRepository incentiveDealerDetailsRepository;
 
 	@Autowired
 	private IncentiveDealerTargetRepository incentiveDealerTargetRepository;
@@ -137,8 +141,8 @@ public class IncentiveServiceImpl implements IncentiveService {
 	}
 
 	@Override
-	public List<IncentiveDealerTarget> getAllDealerCodes() {
-		return incentiveDealerTargetRepository.findAll();
+	public List<IncentiveDealerDetails> getAllDealerCodes() {
+		return incentiveDealerDetailsRepository.findAll();
 	}
 
 	@Override
@@ -146,10 +150,32 @@ public class IncentiveServiceImpl implements IncentiveService {
 		return incentiveDealerTargetRepository.findByDealerCode(dealerCode);
 	}
 
+	@Override
+	public IncentiveDealerTarget getDealerTargetByMonth(String dealerCode, String dealerTargetMonth) {
+		return incentiveDealerTargetRepository.findByDealerCodeAndDealerTargetMonth(dealerCode, dealerTargetMonth);
+	}
+
+	@Override
+	public void saveIncentiveCalculationList(List<IncentiveCalculation> incCalculationList,
+			IncentiveDealerTarget dealerTarget) {
+		List<IncentiveCalculation> incCalculationEOList = incentiveCalculationRepository
+				.findByDealerCodeAndDealerTargetMonth(dealerTarget.getDealerCode(),
+						dealerTarget.getDealerTargetMonth());
+		if (incCalculationEOList != null) {
+			incentiveCalculationRepository.deleteAll(incCalculationEOList);
+		}
+		incentiveCalculationRepository.saveAll(incCalculationList);
+	}
+
+	// Note: This method is used only for POC purpose.
+	// To calculate the incentive for dealer based on static data only.
+	// Logic as to be completely changed for dynamic values.
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode) throws ParseException {
+	public List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode) {
+
 		IncentiveDealerTarget dealerTarget = getDealerTarget(dealerCode);
+
 		List<IncentiveCalculation> incCalculationList = new ArrayList<IncentiveCalculation>();
 		getAllIncentiveProgram().stream().forEach(incProgram -> {
 
@@ -275,59 +301,67 @@ public class IncentiveServiceImpl implements IncentiveService {
 					if (entry.getKey().contains("SSP") && (dealerTarget.getDealerTargetSSP() != 0)) {
 						targetAchievedPercentageSSP = (double) Math
 								.round((double) (entry.getValue() / (double) dealerTarget.getDealerTargetSSP()) * 100);
-						incCalculationSSP.setTargetAchieved(entry.getValue().toString());
+						incCalculationSSP.setTargetAchieved(entry.getValue());
 					}
 
-					String incentiveCategorySSP = targetAchievedPercentageSSP >= 100.0 ? "100%" : "0%";
+					Integer incentiveCategorySSP = targetAchievedPercentageSSP >= 100 ? 100 : 0;
 
 					incCalculationSSP.setDealerCode(dealerCode);
 					incCalculationSSP.setDealerName(dealerTarget.getDealerName());
-					incCalculationSSP.setProductType(dealerTarget.getProductType());
+					incCalculationSSP.setProgramCode(incProgram.getProgramCode());
 					incCalculationSSP.setSubProductType(dealerTarget.getSubProductTypeSSP());
-					incCalculationSSP.setTarget(dealerTarget.getDealerTargetSSP().toString());
-					incCalculationSSP.setAchievedPercentage(targetAchievedPercentageSSP.toString());
-					incCalculationSSP.setIncentiveCategory(incentiveCategorySSP.toString());
-					incCalculationSSP.setTotal(totalIncentiveSSP.toString());
+					incCalculationSSP.setTarget(dealerTarget.getDealerTargetSSP());
+					incCalculationSSP.setAchievedPercentage(targetAchievedPercentageSSP.intValue());
+					incCalculationSSP.setIncentiveCategory(incentiveCategorySSP);
+					incCalculationSSP.setTotal(totalIncentiveSSP);
+					incCalculationSSP.setDealerTargetMonth(dealerTarget.getDealerTargetMonth());
 
 					for (Map.Entry<String, Integer> entryClaimsCount : noOfClaimsAllowedCount.entrySet()) {
 						if (entryClaimsCount.getKey().contains("SSP2")) {
-							incCalculationSSP.setNoOfClaimsAllowed2(entryClaimsCount.getValue().toString());
+							incCalculationSSP.setNoOfClaimsAllowed2(
+									entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
 						} else if (entryClaimsCount.getKey().contains("SSP3")) {
-							incCalculationSSP.setNoOfClaimsAllowed3(entryClaimsCount.getValue().toString());
+							incCalculationSSP.setNoOfClaimsAllowed3(
+									entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
 						} else if (entryClaimsCount.getKey().contains("SSP4")) {
-							incCalculationSSP.setNoOfClaimsAllowed4(entryClaimsCount.getValue().toString());
+							incCalculationSSP.setNoOfClaimsAllowed4(
+									entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
 						} else if (entryClaimsCount.getKey().contains("SSP7")) {
-							incCalculationSSP.setNoOfClaimsAllowed7(entryClaimsCount.getValue().toString());
+							incCalculationSSP.setNoOfClaimsAllowed7(
+									entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
 						}
 					}
 
-					incCalculationList.add(incentiveCalculationRepository.save(incCalculationSSP));
+					incCalculationList.add(incCalculationSSP);
 				} else if (entry.getKey().contains("OSP")) {
 
 					if (entry.getKey().contains("OSP") && (dealerTarget.getDealerTargetOSP() != 0)) {
 						targetAchievedPercentageOSP = (double) Math
 								.round((double) (entry.getValue() / (double) dealerTarget.getDealerTargetOSP()) * 100);
-						incCalculationOSP.setTargetAchieved(entry.getValue().toString());
+						incCalculationOSP.setTargetAchieved(entry.getValue());
 
-						String incentiveCategoryOSP = targetAchievedPercentageOSP >= 100.0 ? "100%" : "0%";
+						Integer incentiveCategoryOSP = targetAchievedPercentageOSP >= 100.0 ? 100 : 0;
 
 						incCalculationOSP.setDealerCode(dealerCode);
 						incCalculationOSP.setDealerName(dealerTarget.getDealerName());
-						incCalculationOSP.setProductType(dealerTarget.getProductType());
+						incCalculationOSP.setProgramCode(incProgram.getProgramCode());
 						incCalculationOSP.setSubProductType(dealerTarget.getSubProductTypeOSP());
-						incCalculationOSP.setTarget(dealerTarget.getDealerTargetOSP().toString());
-						incCalculationOSP.setAchievedPercentage(targetAchievedPercentageOSP.toString());
-						incCalculationOSP.setIncentiveCategory(incentiveCategoryOSP.toString());
-						incCalculationOSP.setTotal(totalIncentiveOSP.toString());
+						incCalculationOSP.setTarget(dealerTarget.getDealerTargetOSP());
+						incCalculationOSP.setAchievedPercentage(targetAchievedPercentageOSP.intValue());
+						incCalculationOSP.setIncentiveCategory(incentiveCategoryOSP);
+						incCalculationOSP.setTotal(totalIncentiveOSP);
+						incCalculationOSP.setDealerTargetMonth(dealerTarget.getDealerTargetMonth());
 						for (Map.Entry<String, Integer> entryClaimsCount : noOfClaimsAllowedCount.entrySet()) {
 							if (entryClaimsCount.getKey().contains("OSP2")) {
-								incCalculationOSP.setNoOfClaimsAllowed2(entryClaimsCount.getValue().toString());
+								incCalculationOSP.setNoOfClaimsAllowed2(
+										entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
 							} else if (entryClaimsCount.getKey().contains("OSP3")) {
-								incCalculationOSP.setNoOfClaimsAllowed3(entryClaimsCount.getValue().toString());
+								incCalculationOSP.setNoOfClaimsAllowed3(
+										entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
 							}
 						}
 
-						incCalculationList.add(incentiveCalculationRepository.save(incCalculationOSP));
+						incCalculationList.add(incCalculationOSP);
 					}
 
 				}
@@ -352,5 +386,79 @@ public class IncentiveServiceImpl implements IncentiveService {
 		} else {
 			map.put(key, 1);
 		}
+	}
+
+	// Note: This method is used only for POC purpose.
+	// To get the incentive calculation report for dealer based on static data only.
+	// Logic as to be completely changed for dynamic values.
+	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationList(List<String> dealerCodes,
+			List<String> programCodes) {
+
+		Map<String, List<IncentiveCalculation>> reportMap = new HashMap<String, List<IncentiveCalculation>>();
+		List<IncentiveCalculation> incCalculationList = incentiveCalculationRepository
+				.findByDealerCodesAndProgramCodes(dealerCodes, programCodes);
+		List<IncentiveCalculation> incCalculationListSSP = new ArrayList<IncentiveCalculation>();
+		List<IncentiveCalculation> incCalculationListOSP = new ArrayList<IncentiveCalculation>();
+		List<IncentiveCalculation> incCalculationListTotal = new ArrayList<IncentiveCalculation>();
+
+		for (IncentiveCalculation incCalculationBO : incCalculationList) {
+			if (incCalculationBO.getSubProductType().equals("SSP")) {
+				incCalculationListSSP.add(incCalculationBO);
+			} else if (incCalculationBO.getSubProductType().equals("OSP")) {
+				incCalculationListOSP.add(incCalculationBO);
+			}
+		}
+
+		String totalIncMapKey = null;
+		Map<String, IncentiveCalculation> totalIncMap = new HashMap<String, IncentiveCalculation>();
+		for (IncentiveCalculation incCalculation : incCalculationList) {
+			totalIncMapKey = incCalculation.getDealerCode() + incCalculation.getProgramCode()
+					+ incCalculation.getDealerTargetMonth();
+			IncentiveCalculation incCal = new IncentiveCalculation();
+			if (totalIncMap.containsKey(totalIncMapKey)) {
+				IncentiveCalculation incCalBO = totalIncMap.get(totalIncMapKey);
+				incCal.setDealerCode(incCalBO.getDealerCode());
+				incCal.setDealerName(incCalBO.getDealerName());
+				incCal.setProgramCode(incCalBO.getProgramCode());
+				incCal.setSubProductType(incCalBO.getSubProductType());
+				incCal.setNoOfClaimsAllowed2(incCalculation.getNoOfClaimsAllowed2() + incCalBO.getNoOfClaimsAllowed2());
+				incCal.setNoOfClaimsAllowed3(incCalculation.getNoOfClaimsAllowed3() + incCalBO.getNoOfClaimsAllowed3());
+				incCal.setNoOfClaimsAllowed4(incCalculation.getNoOfClaimsAllowed4() + incCalBO.getNoOfClaimsAllowed4());
+				incCal.setNoOfClaimsAllowed7(incCalculation.getNoOfClaimsAllowed7() + incCalBO.getNoOfClaimsAllowed7());
+				incCal.setTargetAchieved(incCalculation.getTargetAchieved() + incCalBO.getTargetAchieved());
+				incCal.setTarget(incCalculation.getTarget() + incCalBO.getTarget());
+				incCal.setAchievedPercentage(incCalculation.getAchievedPercentage() + incCalBO.getAchievedPercentage());
+				incCal.setIncentiveCategory(incCalculation.getIncentiveCategory() + incCalBO.getIncentiveCategory());
+				incCal.setTotal(incCalculation.getTotal() + incCalBO.getTotal());
+				incCal.setDealerTargetMonth(incCalculation.getDealerTargetMonth());
+				totalIncMap.put(totalIncMapKey, incCal);
+			} else {
+				incCal.setDealerCode(incCalculation.getDealerCode());
+				incCal.setDealerName(incCalculation.getDealerName());
+				incCal.setProgramCode(incCalculation.getProgramCode());
+				incCal.setSubProductType("ALL");
+				incCal.setNoOfClaimsAllowed2(incCalculation.getNoOfClaimsAllowed2());
+				incCal.setNoOfClaimsAllowed3(incCalculation.getNoOfClaimsAllowed3());
+				incCal.setNoOfClaimsAllowed4(incCalculation.getNoOfClaimsAllowed4());
+				incCal.setNoOfClaimsAllowed7(incCalculation.getNoOfClaimsAllowed7());
+				incCal.setTargetAchieved(incCalculation.getTargetAchieved());
+				incCal.setTarget(incCalculation.getTarget());
+				incCal.setAchievedPercentage(incCalculation.getAchievedPercentage());
+				incCal.setIncentiveCategory(incCalculation.getIncentiveCategory());
+				incCal.setTotal(incCalculation.getTotal());
+				incCal.setDealerTargetMonth(incCalculation.getDealerTargetMonth());
+				totalIncMap.put(totalIncMapKey, incCal);
+			}
+		}
+
+		for (Map.Entry<String, IncentiveCalculation> totalIncentive : totalIncMap.entrySet()) {
+			incCalculationListTotal.add(totalIncentive.getValue());
+		}
+
+		reportMap.put("SSP", incCalculationListSSP);
+		reportMap.put("OSP", incCalculationListOSP);
+		reportMap.put("Total", incCalculationListTotal);
+		return reportMap;
+
 	}
 }

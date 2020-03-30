@@ -1,11 +1,12 @@
 package com.ford.poc.service;
 
-import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.ford.poc.eo.IncentiveCalculation;
+import com.ford.poc.eo.IncentiveDealerDetails;
 import com.ford.poc.eo.IncentiveDealerTarget;
 import com.ford.poc.eo.IncentiveProgram;
 import com.ford.poc.eo.IncentiveStructure;
@@ -27,9 +28,17 @@ public interface IncentiveService {
 
 	public List<IncentiveStructure> getAllIncentiveStructure(String programCode, String productType);
 
-	public List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode) throws ParseException;
+	public List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode);
 
-	public List<IncentiveDealerTarget> getAllDealerCodes();
+	public List<IncentiveDealerDetails> getAllDealerCodes();
 
 	public IncentiveDealerTarget getDealerTarget(String dealerCode);
+
+	public IncentiveDealerTarget getDealerTargetByMonth(String dealerCode, String dealerTargetMonth);
+
+	public void saveIncentiveCalculationList(List<IncentiveCalculation> incCalculationList,
+			IncentiveDealerTarget dealerTarget);
+
+	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationList(List<String> dealerCode,
+			List<String> programCodes);
 }

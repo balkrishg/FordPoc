@@ -30,37 +30,40 @@ public class IncentiveCalculation {
 	@Column(name = "DEALER_NAME")
 	private String dealerName;
 
-	@Column(name = "PRODUCT_TYPE")
-	private String productType;
+	@Column(name = "PROGRAM_CODE")
+	private String programCode;
 
 	@Column(name = "SUB_PRD_TYPE")
 	private String subProductType;
 
 	@Column(name = "NO_OF_CLAIMS_ALLOWED2")
-	private String noOfClaimsAllowed2;
+	private int noOfClaimsAllowed2;
 
 	@Column(name = "NO_OF_CLAIMS_ALLOWED3")
-	private String noOfClaimsAllowed3;
+	private int noOfClaimsAllowed3;
 
 	@Column(name = "NO_OF_CLAIMS_ALLOWED4")
-	private String noOfClaimsAllowed4;
+	private int noOfClaimsAllowed4;
 
 	@Column(name = "NO_OF_CLAIMS_ALLOWED7")
-	private String noOfClaimsAllowed7;
+	private int noOfClaimsAllowed7;
 
 	@Column(name = "TARGET_ACHIEVED")
-	private String targetAchieved;
+	private int targetAchieved;
 
 	@Column(name = "TARGET")
-	private String target;
+	private int target;
 
 	@Column(name = "ACHIEVED_PERCENTAGE")
-	private String achievedPercentage;
+	private int achievedPercentage;
 
 	@Column(name = "INCENTIVE_CATEGORY")
-	private String incentiveCategory;
+	private int incentiveCategory;
 
 	@Column(name = "TOTAL")
-	private String total;
+	private int total;
+	
+	@Column(name = "DEALER_TARGET_MONTH")
+	private String dealerTargetMonth;
 
 }

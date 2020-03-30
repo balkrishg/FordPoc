@@ -3,6 +3,7 @@ package com.ford.poc.controller;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,11 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ford.poc.bo.IncentiveCalculationReportRequestBO;
 import com.ford.poc.bo.IncentiveDealerCodesBO;
 import com.ford.poc.bo.IncentiveProgramBO;
 import com.ford.poc.bo.IncentiveStructureBO;
 import com.ford.poc.bo.IncentiveStructureListBO;
 import com.ford.poc.eo.IncentiveCalculation;
+import com.ford.poc.eo.IncentiveDealerDetails;
 import com.ford.poc.eo.IncentiveDealerTarget;
 import com.ford.poc.eo.IncentiveProgram;
 import com.ford.poc.eo.IncentiveStructure;
@@ -140,9 +143,9 @@ public class IncentiveController {
 
 	@GetMapping("/getDealerCodes")
 	public List<IncentiveDealerCodesBO> getDealerCodes() throws Exception {
-		List<IncentiveDealerTarget> incDealerTargetList = incentiveService.getAllDealerCodes();
+		List<IncentiveDealerDetails> incDealerDetailsList = incentiveService.getAllDealerCodes();
 		List<IncentiveDealerCodesBO> incDealerCodes = new ArrayList<IncentiveDealerCodesBO>();
-		for (IncentiveDealerTarget incDealerTarget : incDealerTargetList) {
+		for (IncentiveDealerDetails incDealerTarget : incDealerDetailsList) {
 			IncentiveDealerCodesBO incDealerCode = new IncentiveDealerCodesBO();
 			incDealerCode.setLabel(incDealerTarget.getDealerName());
 			incDealerCode.setValue(incDealerTarget.getDealerCode());
@@ -155,13 +158,29 @@ public class IncentiveController {
 	public List<IncentiveCalculation> calculateIncentive(@RequestBody List<String> dealerCodes) throws Exception {
 		List<IncentiveCalculation> incCalculation = new ArrayList<IncentiveCalculation>();
 		dealerCodes.stream().forEach(dealerCode -> {
-			try {
-				incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(dealerCode));
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(dealerCode));
 		});
 		return incCalculation;
+	}
+
+	@PostMapping("/calculateIncentiveForAllDealers")
+	public void calculateIncentiveForAllDealers() throws Exception {
+		List<IncentiveCalculation> incCalculationList = new ArrayList<IncentiveCalculation>();
+		List<IncentiveDealerDetails> incDealerDetailsList = incentiveService.getAllDealerCodes();
+		incDealerDetailsList.stream().forEach(dealerCode -> {
+			IncentiveDealerTarget dealerTarget = incentiveService.getDealerTarget(dealerCode.getDealerCode());
+			incCalculationList
+					.addAll(incentiveService.calculateIncentiveForParticularDealer(dealerCode.getDealerCode()));
+			incentiveService.saveIncentiveCalculationList(incCalculationList, dealerTarget);
+		});
+	}
+
+	@PostMapping("/getIncentiveCalculationReport")
+	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationReport(
+			@RequestBody IncentiveCalculationReportRequestBO reportRequest) throws Exception {
+
+		return incentiveService.getIncentiveCalculationList(reportRequest.getDealerCodes(),
+				reportRequest.getProgramCodes());
 	}
 
 }
