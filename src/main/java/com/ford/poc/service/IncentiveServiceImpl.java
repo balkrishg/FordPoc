@@ -401,17 +401,22 @@ public class IncentiveServiceImpl implements IncentiveService {
 		List<IncentiveCalculation> incCalculationListOSP = new ArrayList<IncentiveCalculation>();
 		List<IncentiveCalculation> incCalculationListTotal = new ArrayList<IncentiveCalculation>();
 
-		for (IncentiveCalculation incCalculationBO : incCalculationList) {
-			if (incCalculationBO.getSubProductType().equals("SSP")) {
-				incCalculationListSSP.add(incCalculationBO);
-			} else if (incCalculationBO.getSubProductType().equals("OSP")) {
-				incCalculationListOSP.add(incCalculationBO);
-			}
-		}
+//		for (IncentiveCalculation incCalculationBO : incCalculationList) {
+//			if (incCalculationBO.getSubProductType().equals("SSP")) {
+//				incCalculationListSSP.add(incCalculationBO);
+//			} else if (incCalculationBO.getSubProductType().equals("OSP")) {
+//				incCalculationListOSP.add(incCalculationBO);
+//			}
+//		}
 
 		String totalIncMapKey = null;
 		Map<String, IncentiveCalculation> totalIncMap = new HashMap<String, IncentiveCalculation>();
 		for (IncentiveCalculation incCalculation : incCalculationList) {
+			if (incCalculation.getSubProductType().equals("SSP")) {
+				incCalculationListSSP.add(incCalculation);
+			} else if (incCalculation.getSubProductType().equals("OSP")) {
+				incCalculationListOSP.add(incCalculation);
+			}
 			totalIncMapKey = incCalculation.getDealerCode() + incCalculation.getProgramCode()
 					+ incCalculation.getDealerTargetMonth();
 			IncentiveCalculation incCal = new IncentiveCalculation();
