@@ -1,9 +1,11 @@
 package com.ford.poc.service;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +84,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 		return incProgram;
 	}
 
+	Log log  = LogFactory.getLog("IncentiveServiceImpl");
 //	@Override
 //	public List<IncentiveProgram> getIncentiveProgramByTargetMonth(String targetMonth) throws ParseException {
 //		List<IncentiveProgram> incProgramList = new ArrayList<IncentiveProgram>();
@@ -154,7 +159,13 @@ public class IncentiveServiceImpl implements IncentiveService {
 	public IncentiveDealerTarget getDealerTargetByMonth(String dealerCode, String dealerTargetMonth) {
 		return incentiveDealerTargetRepository.findByDealerCodeAndDealerTargetMonth(dealerCode, dealerTargetMonth);
 	}
-
+	
+	/*
+	 * @Override public List<IncentiveDealerTarget>
+	 * getDealerTargetByDealerCode(String dealerCode) { return
+	 * incentiveDealerTargetRepository.findByDealerCodeAndDealerTarget(dealerCode);
+	 * }
+	 */
 	@Override
 	public void saveIncentiveCalculationList(List<IncentiveCalculation> incCalculationList,
 			IncentiveDealerTarget dealerTarget) {
@@ -172,16 +183,19 @@ public class IncentiveServiceImpl implements IncentiveService {
 	// Logic as to be completely changed for dynamic values.
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode) {
-
-		IncentiveDealerTarget dealerTarget = getDealerTarget(dealerCode);
-
+	public List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode, String dealerTargetMonth) {
+		
+		IncentiveDealerTarget dealerTarget = getDealerTargetByMonth(dealerCode, dealerTargetMonth);
 		List<IncentiveCalculation> incCalculationList = new ArrayList<IncentiveCalculation>();
-		getAllIncentiveProgram().stream().forEach(incProgram -> {
-
+		if(dealerTarget == null ) {
+			log.error("No Dealer target found for month NOV19");
+		}
+		else {
+		//IncentiveDealerTarget dealerTarget = getDealerTarget(dealerCode);
+		//List<IncentiveDealerTarget> dealerTarget  = getDealerTargetByDealerCode(dealerCode);
+			getAllIncentiveProgram().stream().forEach(incProgram -> {
 			IncentiveCalculation incCalculationSSP = new IncentiveCalculation();
 			IncentiveCalculation incCalculationOSP = new IncentiveCalculation();
-
 			List<IncentiveStructure> incStructureList = getAllIncentiveStructureByProgramCode(
 					incProgram.getProgramCode());
 			List<IncentiveStructure> distinctIncStructureList = incStructureList.stream()
@@ -284,10 +298,36 @@ public class IncentiveServiceImpl implements IncentiveService {
 			Integer totalIncentiveOSP = 0;
 			for (Map.Entry<String, Integer> entry : noOfClaimsAllowedCount.entrySet()) {
 				for (Map.Entry<String, Integer> incentiveEntry : incentiveMap.entrySet()) {
+					//log.info("entry.getKey()  " +entry.getKey() +" Value " +entry.getValue());
+					//log.info("incentiveEntry.getKey()  "+incentiveEntry.getKey()+" Value "+incentiveEntry.getValue());
 					if (entry.getKey().equals(incentiveEntry.getKey()) && entry.getKey().contains("SSP")) {
 						totalIncentiveSSP = totalIncentiveSSP + (entry.getValue() * incentiveEntry.getValue());
+						// Setting up values for AmountEarned values INC_DLR_TOTAL_INCENTIVE table 
+						if (entry.getKey().contains("SSP2")) {
+							incCalculationSSP.setAmountEarnedCA2(
+									entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+						} else if (entry.getKey().contains("SSP3")) {
+							incCalculationSSP.setAmountEarnedCA3(
+									entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+						} else if (entry.getKey().contains("SSP4")) {
+							incCalculationSSP.setAmountEarnedCA4(
+									entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+						} else if (entry.getKey().contains("SSP7")) {
+							incCalculationSSP.setAmountEarnedCA7(
+									entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+						}
+						
 					} else if (entry.getKey().equals(incentiveEntry.getKey()) && entry.getKey().contains("OSP")) {
 						totalIncentiveOSP = totalIncentiveOSP + (entry.getValue() * incentiveEntry.getValue());
+						
+						if (entry.getKey().contains("OSP2")) {
+							incCalculationOSP.setAmountEarnedCA2(
+									entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+						} else if (entry.getKey().contains("OSP3")) {
+							incCalculationOSP.setAmountEarnedCA3(
+									entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+						}
+						
 					}
 				}
 			}
@@ -367,7 +407,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 				}
 			}
 		});
-
+		}
 		return incCalculationList;
 	}
 
@@ -392,22 +432,16 @@ public class IncentiveServiceImpl implements IncentiveService {
 	// To get the incentive calculation report for dealer based on static data only.
 	// Logic as to be completely changed for dynamic values.
 	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationList(List<String> dealerCodes,
-			List<String> programCodes) {
-
+			List<String> programCodes, String IncentiveFrom, String IncentiveTo) {
+        List<String> listOfMonths = getMonthsFromDateRange(IncentiveFrom, IncentiveTo);
 		Map<String, List<IncentiveCalculation>> reportMap = new HashMap<String, List<IncentiveCalculation>>();
-		List<IncentiveCalculation> incCalculationList = incentiveCalculationRepository
-				.findByDealerCodesAndProgramCodes(dealerCodes, programCodes);
 		List<IncentiveCalculation> incCalculationListSSP = new ArrayList<IncentiveCalculation>();
 		List<IncentiveCalculation> incCalculationListOSP = new ArrayList<IncentiveCalculation>();
 		List<IncentiveCalculation> incCalculationListTotal = new ArrayList<IncentiveCalculation>();
 
-//		for (IncentiveCalculation incCalculationBO : incCalculationList) {
-//			if (incCalculationBO.getSubProductType().equals("SSP")) {
-//				incCalculationListSSP.add(incCalculationBO);
-//			} else if (incCalculationBO.getSubProductType().equals("OSP")) {
-//				incCalculationListOSP.add(incCalculationBO);
-//			}
-//		}
+		for(String dealerTargetMonth : listOfMonths) {
+		List<IncentiveCalculation> incCalculationList = incentiveCalculationRepository
+				.findByDealerCodesAndProgramCodesAndDealerTargetMonth(dealerCodes, programCodes, dealerTargetMonth);
 
 		String totalIncMapKey = null;
 		Map<String, IncentiveCalculation> totalIncMap = new HashMap<String, IncentiveCalculation>();
@@ -434,8 +468,13 @@ public class IncentiveServiceImpl implements IncentiveService {
 				incCal.setTarget(incCalculation.getTarget() + incCalBO.getTarget());
 				incCal.setAchievedPercentage(incCalculation.getAchievedPercentage() + incCalBO.getAchievedPercentage());
 				incCal.setIncentiveCategory(incCalculation.getIncentiveCategory() + incCalBO.getIncentiveCategory());
+				incCal.setAmountEarnedCA2(incCalculation.getAmountEarnedCA2()+incCalBO.getAmountEarnedCA2());
+				incCal.setAmountEarnedCA3(incCalculation.getAmountEarnedCA3()+incCalBO.getAmountEarnedCA3());
+				incCal.setAmountEarnedCA4(incCalculation.getAmountEarnedCA4()+incCalBO.getAmountEarnedCA4());
+				incCal.setAmountEarnedCA7(incCalculation.getAmountEarnedCA7()+incCalBO.getAmountEarnedCA7());
 				incCal.setTotal(incCalculation.getTotal() + incCalBO.getTotal());
 				incCal.setDealerTargetMonth(incCalculation.getDealerTargetMonth());
+				log.info("incCalculation.getDealerTargetMonth() : "+incCalculation.getDealerTargetMonth());
 				totalIncMap.put(totalIncMapKey, incCal);
 			} else {
 				incCal.setDealerCode(incCalculation.getDealerCode());
@@ -450,8 +489,13 @@ public class IncentiveServiceImpl implements IncentiveService {
 				incCal.setTarget(incCalculation.getTarget());
 				incCal.setAchievedPercentage(incCalculation.getAchievedPercentage());
 				incCal.setIncentiveCategory(incCalculation.getIncentiveCategory());
+				incCal.setAmountEarnedCA2(incCalculation.getAmountEarnedCA2());
+				incCal.setAmountEarnedCA3(incCalculation.getAmountEarnedCA3());
+				incCal.setAmountEarnedCA4(incCalculation.getAmountEarnedCA4());
+				incCal.setAmountEarnedCA7(incCalculation.getAmountEarnedCA7());
 				incCal.setTotal(incCalculation.getTotal());
 				incCal.setDealerTargetMonth(incCalculation.getDealerTargetMonth());
+				log.info("incCalculation.getDealerTargetMonth() : "+incCalculation.getDealerTargetMonth());
 				totalIncMap.put(totalIncMapKey, incCal);
 			}
 		}
@@ -463,7 +507,32 @@ public class IncentiveServiceImpl implements IncentiveService {
 		reportMap.put("SSP", incCalculationListSSP);
 		reportMap.put("OSP", incCalculationListOSP);
 		reportMap.put("Total", incCalculationListTotal);
+		}
 		return reportMap;
 
 	}
+	
+	private List<String> getMonthsFromDateRange(String IncentiveFrom, String IncentiveTo) {
+        DateFormat formater = new SimpleDateFormat("dd-MM-yyyy");
+        List<String> listOfMonths= new ArrayList<String>();
+        Calendar beginCalendar = Calendar.getInstance();
+        Calendar finishCalendar = Calendar.getInstance();
+
+        try {
+            beginCalendar.setTime(formater.parse(IncentiveFrom));
+            finishCalendar.setTime(formater.parse(IncentiveTo));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        DateFormat formater1 = new SimpleDateFormat("MMMYY");
+        while (beginCalendar.before(finishCalendar)) {
+            // add one month to date per loop
+            String date =     formater1.format(beginCalendar.getTime()).toUpperCase();
+            listOfMonths.add(date);
+            System.out.println(date);
+            beginCalendar.add(Calendar.MONTH, 1);
+        }
+        return listOfMonths;
+    }
+	
 }

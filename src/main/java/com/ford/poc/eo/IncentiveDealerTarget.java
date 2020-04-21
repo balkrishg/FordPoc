@@ -31,6 +31,9 @@ public class IncentiveDealerTarget {
 	@Column(name = "DEALER_NAME")
 	private String dealerName;
 	
+	@Column(name = "PROGRAM_CODE", nullable = false)
+	private String programCode;
+	
 	@Column(name = "SUB_PRD_TYPE_OSP")
 	private String subProductTypeOSP;
 
@@ -45,4 +48,6 @@ public class IncentiveDealerTarget {
 
 	@Column(name = "DEALER_TARGET_MONTH")
 	private String dealerTargetMonth;
+	
+	
 }

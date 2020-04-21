@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +39,8 @@ public class IncentiveController {
 
 	@Autowired
 	private IncentiveHelper incentiveHelper;
+	
+	Log log  = LogFactory.getLog("IncentiveController");
 
 	@PostMapping("/saveIncentiveProgram")
 	public IncentiveProgramBO saveIncentiveProgram(@RequestBody IncentiveProgramBO request) throws ParseException {
@@ -159,22 +163,44 @@ public class IncentiveController {
 	@PostMapping("/calculateIncentive")
 	public List<IncentiveCalculation> calculateIncentive(@RequestBody List<String> dealerCodes) throws Exception {
 		List<IncentiveCalculation> incCalculation = new ArrayList<IncentiveCalculation>();
-		dealerCodes.stream().forEach(dealerCode -> {
-			incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(dealerCode));
-		});
+		String[] listOfMonths = {"OCT19","NOV19","DEC19"};
+		//List<IncentiveDealerDetails> incDealerDetailsList = incentiveService.getAllDealerCodes();
+		for(String dealerTargetMonth : listOfMonths) {
+			for(String incDealer: dealerCodes) {
+				IncentiveDealerTarget dealerTarget = incentiveService.getDealerTargetByMonth(incDealer, dealerTargetMonth);
+				if(dealerTarget != null) {
+					incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer,dealerTargetMonth));
+					//incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer.getDealerCode()));
+					incentiveService.saveIncentiveCalculationList(incCalculation, dealerTarget);
+				}
+				else {
+					log.error("No Dealer target found for month "+dealerTargetMonth);
+				}
+		}
+		}
 		return incCalculation;
 	}
 
-	@PostMapping("/calculateIncentiveForAllDealers")
-	public void calculateIncentiveForAllDealers() throws Exception {
+	@GetMapping("/calculateIncentiveForAllDealers")
+	public String calculateIncentiveForAllDealers() throws Exception {
 		List<IncentiveCalculation> incCalculationList = new ArrayList<IncentiveCalculation>();
+		String[] listOfMonths = {"OCT19","NOV19","DEC19"};
 		List<IncentiveDealerDetails> incDealerDetailsList = incentiveService.getAllDealerCodes();
-		incDealerDetailsList.stream().forEach(dealerCode -> {
-			IncentiveDealerTarget dealerTarget = incentiveService.getDealerTarget(dealerCode.getDealerCode());
+		for(String dealerTargetMonth :listOfMonths) {
+		for(IncentiveDealerDetails incDealer: incDealerDetailsList) {
+			IncentiveDealerTarget dealerTarget = incentiveService.getDealerTargetByMonth(incDealer.getDealerCode(), dealerTargetMonth);
+			//IncentiveDealerTarget dealerTarget1 = incentiveService.getDealerTarget(dealerCode.getDealerCode());
+			if(dealerTarget != null) {
 			incCalculationList
-					.addAll(incentiveService.calculateIncentiveForParticularDealer(dealerCode.getDealerCode()));
+					.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer.getDealerCode(),dealerTargetMonth));
 			incentiveService.saveIncentiveCalculationList(incCalculationList, dealerTarget);
-		});
+			}
+			else {
+				log.error("No Dealer target found for month "+dealerTargetMonth);
+			}
+		}
+		}
+		return "Success";
 	}
 
 	@PostMapping("/getIncentiveCalculationReport")
@@ -182,7 +208,7 @@ public class IncentiveController {
 			@RequestBody IncentiveCalculationReportRequestBO reportRequest) throws Exception {
 
 		return incentiveService.getIncentiveCalculationList(reportRequest.getDealerCodes(),
-				reportRequest.getProgramCodes());
+				reportRequest.getProgramCodes(), reportRequest.getIncentiveFrom(), reportRequest.getIncentiveTo());
 	}
 
 }

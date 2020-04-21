@@ -59,6 +59,18 @@ public class IncentiveCalculation {
 
 	@Column(name = "INCENTIVE_CATEGORY")
 	private int incentiveCategory;
+	
+	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED2")
+	private int amountEarnedCA2;
+	
+	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED3")
+	private int amountEarnedCA3;
+	
+	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED4")
+	private int amountEarnedCA4;
+	
+	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED7")
+	private int amountEarnedCA7;
 
 	@Column(name = "TOTAL")
 	private int total;

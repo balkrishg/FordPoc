@@ -15,4 +15,8 @@ public class IncentiveCalculationReportRequestBO {
 	
 	List<String> programCodes;
 	
+	String incentiveFrom;
+	
+	String incentiveTo;
+	
 }
