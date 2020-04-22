@@ -11,7 +11,7 @@ public interface IncentiveDealerTargetRepository extends JpaRepository<Incentive
 
 	IncentiveDealerTarget findByDealerCode(String dealerCode);
 	
-	//List<IncentiveDealerTarget> findByDealerCodeAndDealerTarget(String dealerCode);
+	List<IncentiveDealerTarget> findByDealerCodeAndProgramCode(String dealerCode, String programCode);
 	
 	IncentiveDealerTarget findByDealerCodeAndDealerTargetMonth(String dealerCode, String dealerTargetMonth);
 }

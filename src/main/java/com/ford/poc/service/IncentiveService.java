@@ -28,7 +28,7 @@ public interface IncentiveService {
 
 	public List<IncentiveStructure> getAllIncentiveStructure(String programCode, String productType);
 
-	//public List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode);
+	public List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode);
 
 	public List<IncentiveDealerDetails> getAllDealerCodes();
 
@@ -42,7 +42,12 @@ public interface IncentiveService {
 	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationList(List<String> dealerCode,
 			List<String> programCodes, String IncentiveFrom, String IncentiveTo);
 
-	List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode, String dealerTargetMonth);
+	List<IncentiveDealerTarget> getDealerTargetByDealerCodeAndProgramCode(String dealerCode, String programCode);
+
+	void saveIncentiveCalculationList(List<IncentiveCalculation> incCalculationList);
+
+	//List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode, String dealerTargetMonth);
 
 	//public List<IncentiveDealerTarget> getDealerTargetByDealerCode(String dealerCode);
+	
 }

@@ -23,7 +23,6 @@ import com.ford.poc.bo.IncentiveStructureBO;
 import com.ford.poc.bo.IncentiveStructureListBO;
 import com.ford.poc.eo.IncentiveCalculation;
 import com.ford.poc.eo.IncentiveDealerDetails;
-import com.ford.poc.eo.IncentiveDealerTarget;
 import com.ford.poc.eo.IncentiveProgram;
 import com.ford.poc.eo.IncentiveStructure;
 import com.ford.poc.helper.IncentiveHelper;
@@ -163,20 +162,9 @@ public class IncentiveController {
 	@PostMapping("/calculateIncentive")
 	public List<IncentiveCalculation> calculateIncentive(@RequestBody List<String> dealerCodes) throws Exception {
 		List<IncentiveCalculation> incCalculation = new ArrayList<IncentiveCalculation>();
-		String[] listOfMonths = {"OCT19","NOV19","DEC19"};
-		//List<IncentiveDealerDetails> incDealerDetailsList = incentiveService.getAllDealerCodes();
-		for(String dealerTargetMonth : listOfMonths) {
 			for(String incDealer: dealerCodes) {
-				IncentiveDealerTarget dealerTarget = incentiveService.getDealerTargetByMonth(incDealer, dealerTargetMonth);
-				if(dealerTarget != null) {
-					incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer,dealerTargetMonth));
-					//incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer.getDealerCode()));
-					incentiveService.saveIncentiveCalculationList(incCalculation, dealerTarget);
-				}
-				else {
-					log.error("No Dealer target found for month "+dealerTargetMonth);
-				}
-		}
+					incCalculation.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer));
+					incentiveService.saveIncentiveCalculationList(incCalculation);
 		}
 		return incCalculation;
 	}
@@ -184,21 +172,10 @@ public class IncentiveController {
 	@GetMapping("/calculateIncentiveForAllDealers")
 	public String calculateIncentiveForAllDealers() throws Exception {
 		List<IncentiveCalculation> incCalculationList = new ArrayList<IncentiveCalculation>();
-		String[] listOfMonths = {"OCT19","NOV19","DEC19"};
 		List<IncentiveDealerDetails> incDealerDetailsList = incentiveService.getAllDealerCodes();
-		for(String dealerTargetMonth :listOfMonths) {
 		for(IncentiveDealerDetails incDealer: incDealerDetailsList) {
-			IncentiveDealerTarget dealerTarget = incentiveService.getDealerTargetByMonth(incDealer.getDealerCode(), dealerTargetMonth);
-			//IncentiveDealerTarget dealerTarget1 = incentiveService.getDealerTarget(dealerCode.getDealerCode());
-			if(dealerTarget != null) {
-			incCalculationList
-					.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer.getDealerCode(),dealerTargetMonth));
-			incentiveService.saveIncentiveCalculationList(incCalculationList, dealerTarget);
-			}
-			else {
-				log.error("No Dealer target found for month "+dealerTargetMonth);
-			}
-		}
+			  incCalculationList.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer.getDealerCode()));
+			  incentiveService.saveIncentiveCalculationList(incCalculationList); 
 		}
 		return "Success";
 	}
