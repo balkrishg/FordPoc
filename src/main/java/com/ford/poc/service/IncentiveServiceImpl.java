@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ford.poc.bo.IncentiveContractBO;
+import com.ford.poc.eo.IncentiveCalcDetail;
 import com.ford.poc.eo.IncentiveCalculation;
 import com.ford.poc.eo.IncentiveContractSales;
 import com.ford.poc.eo.IncentiveContractSalesCancellation;
@@ -227,8 +228,10 @@ public class IncentiveServiceImpl implements IncentiveService {
 			for (IncentiveDealerTarget dealerTarget : listDealerTarget) {
 
 				IncentiveCalculation incCalculationSSP = new IncentiveCalculation();
+				List<IncentiveCalcDetail> incCalcDetailListSSP=new ArrayList<IncentiveCalcDetail>();
 				IncentiveCalculation incCalculationOSP = new IncentiveCalculation();
-
+				List<IncentiveCalcDetail> incCalcDetailListOSP=new ArrayList<IncentiveCalcDetail>();
+				
 				List<IncentiveContractSales> incContractSalesList = incentiveContractSalesRepository
 						.findByDealerCode(incProgram.getDateFrom(), incProgram.getDateTo(), dealerCode);
 				List<IncentiveContractSalesCancellation> incContractSalesCancellationList = incentiveContractSalesCancellationRepository
@@ -319,34 +322,37 @@ public class IncentiveServiceImpl implements IncentiveService {
 						// log.info("entry.getKey() " +entry.getKey() +" Value " +entry.getValue());
 						// log.info("incentiveEntry.getKey() "+incentiveEntry.getKey()+" Value
 						// "+incentiveEntry.getValue());
+						IncentiveCalcDetail incCalcDetail=new IncentiveCalcDetail();
 						if (entry.getKey().equals(incentiveEntry.getKey()) && entry.getKey().contains("SSP")) {
 							totalIncentiveSSP = totalIncentiveSSP + (entry.getValue() * incentiveEntry.getValue());
-							// Setting up values for AmountEarned values INC_DLR_TOTAL_INCENTIVE table
-							if (entry.getKey().contains("SSP2")) {
-								incCalculationSSP.setAmountEarnedCA2(
-										entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+							// Setting up values for AmountEarned values INC_DLR_TOTAL_INCENTIVE table	
+							incCalcDetail.setIncCalc(incCalculationSSP);
+							incCalcDetail.setActualSales(entry.getValue() != null ? entry.getValue() : 0);
+							incCalcDetail.setIncentiveCalculated(entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+							if (entry.getKey().contains("SSP2")) {						
+								incCalcDetail.setNoOfServices(2);																
 							} else if (entry.getKey().contains("SSP3")) {
-								incCalculationSSP.setAmountEarnedCA3(
-										entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+								incCalcDetail.setNoOfServices(3);
 							} else if (entry.getKey().contains("SSP4")) {
-								incCalculationSSP.setAmountEarnedCA4(
-										entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+								incCalcDetail.setNoOfServices(4);
 							} else if (entry.getKey().contains("SSP7")) {
-								incCalculationSSP.setAmountEarnedCA7(
-										entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+								incCalcDetail.setNoOfServices(7);
 							}
+							incCalcDetailListSSP.add(incCalcDetail);
+							incCalculationSSP.setIncCalcDetail(incCalcDetailListSSP);
 
 						} else if (entry.getKey().equals(incentiveEntry.getKey()) && entry.getKey().contains("OSP")) {
 							totalIncentiveOSP = totalIncentiveOSP + (entry.getValue() * incentiveEntry.getValue());
-
+							incCalcDetail.setIncCalc(incCalculationOSP);
+							incCalcDetail.setActualSales(entry.getValue() != null ? entry.getValue() : 0);
+							incCalcDetail.setIncentiveCalculated(entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
 							if (entry.getKey().contains("OSP2")) {
-								incCalculationOSP.setAmountEarnedCA2(
-										entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+								incCalcDetail.setNoOfServices(2);
 							} else if (entry.getKey().contains("OSP3")) {
-								incCalculationOSP.setAmountEarnedCA3(
-										entry.getValue() != null ? entry.getValue() * incentiveEntry.getValue() : 0);
+								incCalcDetail.setNoOfServices(3);
 							}
-
+							incCalcDetailListOSP.add(incCalcDetail);
+							incCalculationOSP.setIncCalcDetail(incCalcDetailListOSP);
 						}
 					}
 				}
@@ -375,22 +381,6 @@ public class IncentiveServiceImpl implements IncentiveService {
 						incCalculationSSP.setTotal(totalIncentiveSSP);
 						incCalculationSSP.setDealerTargetMonth(dealerTarget.getDealerTargetMonth());
 						log.info("dealerTarget.getDealerTargetMonth() : " + dealerTarget.getDealerTargetMonth());
-						for (Map.Entry<String, Integer> entryClaimsCount : noOfClaimsAllowedCount.entrySet()) {
-							if (entryClaimsCount.getKey().contains("SSP2")) {
-								incCalculationSSP.setNoOfClaimsAllowed2(
-										entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
-							} else if (entryClaimsCount.getKey().contains("SSP3")) {
-								incCalculationSSP.setNoOfClaimsAllowed3(
-										entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
-							} else if (entryClaimsCount.getKey().contains("SSP4")) {
-								incCalculationSSP.setNoOfClaimsAllowed4(
-										entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
-							} else if (entryClaimsCount.getKey().contains("SSP7")) {
-								incCalculationSSP.setNoOfClaimsAllowed7(
-										entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
-							}
-						}
-
 						incCalculationList.add(incCalculationSSP);
 					} else if (entry.getKey().contains("OSP")) {
 
@@ -410,15 +400,6 @@ public class IncentiveServiceImpl implements IncentiveService {
 							incCalculationOSP.setIncentiveCategory(incentiveCategoryOSP);
 							incCalculationOSP.setTotal(totalIncentiveOSP);
 							incCalculationOSP.setDealerTargetMonth(dealerTarget.getDealerTargetMonth());
-							for (Map.Entry<String, Integer> entryClaimsCount : noOfClaimsAllowedCount.entrySet()) {
-								if (entryClaimsCount.getKey().contains("OSP2")) {
-									incCalculationOSP.setNoOfClaimsAllowed2(
-											entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
-								} else if (entryClaimsCount.getKey().contains("OSP3")) {
-									incCalculationOSP.setNoOfClaimsAllowed3(
-											entryClaimsCount.getValue() != null ? entryClaimsCount.getValue() : 0);
-								}
-							}
 							incCalculationList.add(incCalculationOSP);
 						}
 
@@ -478,24 +459,23 @@ public class IncentiveServiceImpl implements IncentiveService {
 					incCal.setDealerName(incCalBO.getDealerName());
 					incCal.setProgramCode(incCalBO.getProgramCode());
 					incCal.setSubProductType(incCalBO.getSubProductType());
-					incCal.setNoOfClaimsAllowed2(
-							incCalculation.getNoOfClaimsAllowed2() + incCalBO.getNoOfClaimsAllowed2());
-					incCal.setNoOfClaimsAllowed3(
-							incCalculation.getNoOfClaimsAllowed3() + incCalBO.getNoOfClaimsAllowed3());
-					incCal.setNoOfClaimsAllowed4(
-							incCalculation.getNoOfClaimsAllowed4() + incCalBO.getNoOfClaimsAllowed4());
-					incCal.setNoOfClaimsAllowed7(
-							incCalculation.getNoOfClaimsAllowed7() + incCalBO.getNoOfClaimsAllowed7());
+					for(IncentiveCalcDetail incCalDetailBO: incCalBO.getIncCalcDetail()) {
+						for(IncentiveCalcDetail incentiveCalculationDetail: incCalculation.getIncCalcDetail()) {
+							if(incCalDetailBO.getNoOfServices()==incentiveCalculationDetail.getNoOfServices()) {
+								int actualSales=incentiveCalculationDetail.getActualSales()+incCalDetailBO.getActualSales();
+								int incCalculated=incentiveCalculationDetail.getIncentiveCalculated()+incCalDetailBO.getIncentiveCalculated();
+								incCalDetailBO.setActualSales(actualSales);
+								incCalDetailBO.setIncentiveCalculated(incCalculated);
+							}
+						}
+					}
+					
 					incCal.setTargetAchieved(incCalculation.getTargetAchieved() + incCalBO.getTargetAchieved());
 					incCal.setTarget(incCalculation.getTarget() + incCalBO.getTarget());
 					incCal.setAchievedPercentage(
 							incCalculation.getAchievedPercentage() + incCalBO.getAchievedPercentage());
 					incCal.setIncentiveCategory(
 							incCalculation.getIncentiveCategory() + incCalBO.getIncentiveCategory());
-					incCal.setAmountEarnedCA2(incCalculation.getAmountEarnedCA2() + incCalBO.getAmountEarnedCA2());
-					incCal.setAmountEarnedCA3(incCalculation.getAmountEarnedCA3() + incCalBO.getAmountEarnedCA3());
-					incCal.setAmountEarnedCA4(incCalculation.getAmountEarnedCA4() + incCalBO.getAmountEarnedCA4());
-					incCal.setAmountEarnedCA7(incCalculation.getAmountEarnedCA7() + incCalBO.getAmountEarnedCA7());
 					incCal.setTotal(incCalculation.getTotal() + incCalBO.getTotal());
 					incCal.setDealerTargetMonth(incCalculation.getDealerTargetMonth());
 					//log.info("incCalculation.getDealerTargetMonth() : " + incCalculation.getDealerTargetMonth());
@@ -504,19 +484,12 @@ public class IncentiveServiceImpl implements IncentiveService {
 					incCal.setDealerCode(incCalculation.getDealerCode());
 					incCal.setDealerName(incCalculation.getDealerName());
 					incCal.setProgramCode(incCalculation.getProgramCode());
-					incCal.setSubProductType("ALL");
-					incCal.setNoOfClaimsAllowed2(incCalculation.getNoOfClaimsAllowed2());
-					incCal.setNoOfClaimsAllowed3(incCalculation.getNoOfClaimsAllowed3());
-					incCal.setNoOfClaimsAllowed4(incCalculation.getNoOfClaimsAllowed4());
-					incCal.setNoOfClaimsAllowed7(incCalculation.getNoOfClaimsAllowed7());
+					incCal.setSubProductType("ALL");					
 					incCal.setTargetAchieved(incCalculation.getTargetAchieved());
 					incCal.setTarget(incCalculation.getTarget());
 					incCal.setAchievedPercentage(incCalculation.getAchievedPercentage());
 					incCal.setIncentiveCategory(incCalculation.getIncentiveCategory());
-					incCal.setAmountEarnedCA2(incCalculation.getAmountEarnedCA2());
-					incCal.setAmountEarnedCA3(incCalculation.getAmountEarnedCA3());
-					incCal.setAmountEarnedCA4(incCalculation.getAmountEarnedCA4());
-					incCal.setAmountEarnedCA7(incCalculation.getAmountEarnedCA7());
+					incCal.setIncCalcDetail(incCalculation.getIncCalcDetail());
 					incCal.setTotal(incCalculation.getTotal());
 					incCal.setDealerTargetMonth(incCalculation.getDealerTargetMonth());
 					//log.info("incCalculation.getDealerTargetMonth() : " + incCalculation.getDealerTargetMonth());

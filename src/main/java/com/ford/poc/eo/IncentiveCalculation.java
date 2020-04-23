@@ -1,10 +1,15 @@
 package com.ford.poc.eo;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -35,19 +40,15 @@ public class IncentiveCalculation {
 
 	@Column(name = "SUB_PRD_TYPE")
 	private String subProductType;
-
-	@Column(name = "NO_OF_CLAIMS_ALLOWED2")
-	private int noOfClaimsAllowed2;
-
-	@Column(name = "NO_OF_CLAIMS_ALLOWED3")
-	private int noOfClaimsAllowed3;
-
-	@Column(name = "NO_OF_CLAIMS_ALLOWED4")
-	private int noOfClaimsAllowed4;
-
-	@Column(name = "NO_OF_CLAIMS_ALLOWED7")
-	private int noOfClaimsAllowed7;
-
+	
+	
+	@OneToMany(
+	        mappedBy = "incCalc",
+	        cascade = CascadeType.ALL,
+	        orphanRemoval = true
+	    )
+	private List<IncentiveCalcDetail> incCalcDetail = new ArrayList<>();
+	
 	@Column(name = "TARGET_ACHIEVED")
 	private int targetAchieved;
 
@@ -60,18 +61,6 @@ public class IncentiveCalculation {
 	@Column(name = "INCENTIVE_CATEGORY")
 	private int incentiveCategory;
 	
-	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED2")
-	private int amountEarnedCA2;
-	
-	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED3")
-	private int amountEarnedCA3;
-	
-	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED4")
-	private int amountEarnedCA4;
-	
-	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED7")
-	private int amountEarnedCA7;
-
 	@Column(name = "TOTAL")
 	private int total;
 	
