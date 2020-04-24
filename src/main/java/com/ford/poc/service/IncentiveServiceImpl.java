@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -225,12 +226,13 @@ public class IncentiveServiceImpl implements IncentiveService {
 			List<IncentiveDealerTarget> listDealerTarget = getDealerTargetByDealerCodeAndProgramCode(dealerCode,
 					incProgram.getProgramCode());
 			for (IncentiveDealerTarget dealerTarget : listDealerTarget) {
+				List<Date> listOfDays = getFromAndTodate(dealerTarget.getDealerTargetMonth());
 
 				IncentiveCalculation incCalculationSSP = new IncentiveCalculation();
 				IncentiveCalculation incCalculationOSP = new IncentiveCalculation();
 
 				List<IncentiveContractSales> incContractSalesList = incentiveContractSalesRepository
-						.findByDealerCode(incProgram.getDateFrom(), incProgram.getDateTo(), dealerCode);
+						.findByDealerCode(listOfDays.get(0), listOfDays.get(1), dealerCode);
 				List<IncentiveContractSalesCancellation> incContractSalesCancellationList = incentiveContractSalesCancellationRepository
 						.findByDealerCode(incProgram.getDateFrom(), incProgram.getDateTo(), dealerCode);
 
@@ -553,10 +555,34 @@ public class IncentiveServiceImpl implements IncentiveService {
 			// add one month to date per loop
 			String date = formater1.format(beginCalendar.getTime()).toUpperCase();
 			listOfMonths.add(date);
-			System.out.println(date);
+			log.info("Month & Year  : "+ date);
 			beginCalendar.add(Calendar.MONTH, 1);
 		}
 		return listOfMonths;
+	}
+	
+	private List<Date> getFromAndTodate(String monthYear) {
+		Date date1 = null;
+		Date date2 = null;
+        List<Date> listOfdates = new ArrayList<Date>();
+		DateFormat formater1 = new SimpleDateFormat("MMMyy");
+		Calendar beginCalendar = Calendar.getInstance();
+		try {
+			beginCalendar.setTime(formater1.parse(monthYear));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		// Set the day of the month to the first day of the month
+		beginCalendar.set(Calendar.DAY_OF_MONTH, 
+				beginCalendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+		date1 = beginCalendar.getTime();
+		listOfdates.add(date1);
+		log.info("Month start Date : "+date1);
+		beginCalendar.set(Calendar.DAY_OF_MONTH,beginCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+		date2 = beginCalendar.getTime();
+		log.info("Month end Date : "+date2);
+		listOfdates.add(date2);
+		return listOfdates;
 	}
 
 }
