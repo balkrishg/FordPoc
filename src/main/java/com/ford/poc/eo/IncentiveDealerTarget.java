@@ -46,17 +46,8 @@ public class IncentiveDealerTarget {
 	@Column(name = "DEALER_TARGET_SSP")
 	private Integer dealerTargetSSP;
 
-	@Column(name = "DEALER_TARGET_FROM_MONTH")
-	private String dealerTargetFromMonth;
-	
-	@Column(name = "DEALER_TARGET_FROM_YEAR")
-	private String dealerTargetFromYear;
-	
-	@Column(name = "DEALER_TARGET_TO_MONTH")
-	private String dealerTargetToMonth;
-	
-	@Column(name = "DEALER_TARGET_TO_YEAR")
-	private String dealerTargetToYear;
+	@Column(name = "DEALER_TARGET_PERIOD")
+	private String dealerTargetPeriod;
 	
 	
 }
