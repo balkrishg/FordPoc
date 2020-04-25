@@ -17,12 +17,6 @@ public class IncentiveCalculationReportRequestBO {
 	
 	String incentiveFromMonth;
 	
-	String incentiveFromYear;
-	
-	String incentiveToMonth;
-	
-	String incentiveToYear;
-	
-	
+	String incentiveToMonth;	
 	
 }

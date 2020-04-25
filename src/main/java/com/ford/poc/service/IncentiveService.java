@@ -34,13 +34,13 @@ public interface IncentiveService {
 
 	public IncentiveDealerTarget getDealerTarget(String dealerCode);
 
-	public IncentiveDealerTarget getDealerTargetByMonth(String dealerCode, String dealerTargetMonth);
+	public IncentiveDealerTarget getDealerTargetByMonth(String dealerCode, String dealerTargetMonthFrom, String dealerTargetMonthTo);
 
 	public void saveIncentiveCalculationList(List<IncentiveCalculation> incCalculationList,
 			IncentiveDealerTarget dealerTarget);
 
 	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationList(List<String> dealerCode,
-			List<String> programCodes, String IncentiveFrom, String IncentiveTo);
+			String programCode, String incentiveFromMonth, String incentiveToMonth) throws Exception;
 
 	List<IncentiveDealerTarget> getDealerTargetByDealerCodeAndProgramCode(String dealerCode, String programCode);
 

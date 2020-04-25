@@ -27,6 +27,7 @@ public class IncentiveHelper {
 		incProgram.setProgramName(request.getProgramName());
 		incProgram.setDateFrom(formatter.parse(request.getDateFrom()));
 		incProgram.setDateTo(formatter.parse(request.getDateTo()));
+		incProgram.setPayoutFrequency(request.getPayoutFrequency());
 	}
 
 	public void convertIncentiveProgramEoToBo(IncentiveProgram incProgram, IncentiveProgramBO response) {
@@ -34,6 +35,7 @@ public class IncentiveHelper {
 		response.setProgramName(incProgram.getProgramName());
 		response.setDateFrom(formatter.format(incProgram.getDateFrom()));
 		response.setDateTo(formatter.format(incProgram.getDateTo()));
+		response.setPayoutFrequency(incProgram.getPayoutFrequency());
 		response.setStatus("Success");
 	}
 
@@ -46,6 +48,7 @@ public class IncentiveHelper {
 				bo.setProgramName(incProgram.getProgramName());
 				bo.setDateFrom(formatter.format(incProgram.getDateFrom()));
 				bo.setDateTo(formatter.format(incProgram.getDateTo()));
+				bo.setPayoutFrequency(incProgram.getPayoutFrequency());
 				responseList.add(bo);
 			}
 		}

@@ -68,7 +68,7 @@ public class IncentiveController {
 		return incentiveProgramBOList;
 
 	}
-
+	
 	@GetMapping("/getIncentiveProgram/{programCode}")
 	public IncentiveProgramBO getIncentiveProgram(@PathVariable("programCode") String programCode) {
 		IncentiveProgram incProgram = null;
@@ -185,7 +185,8 @@ public class IncentiveController {
 			@RequestBody IncentiveCalculationReportRequestBO reportRequest) throws Exception {
 
 		return incentiveService.getIncentiveCalculationList(reportRequest.getDealerCodes(),
-				reportRequest.getProgramCodes(), reportRequest.getIncentiveFrom(), reportRequest.getIncentiveTo());
+				reportRequest.getProgramCode(), reportRequest.getIncentiveFromMonth(), 
+				reportRequest.getIncentiveToMonth());
 	}
 
 }
