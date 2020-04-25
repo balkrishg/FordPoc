@@ -38,6 +38,9 @@ public class IncentiveStructure {
 
 	@Column(name = "DATE_TO", nullable = false)
 	private Date dateTo;
+	
+	/*@Column(name = "PAYOUT_FREQUENCY", nullable =false)
+	private String payoutFrequency;*/
 
 	@Column(name = "PRODUCT_TYPE", nullable = false)
 	private String productType;

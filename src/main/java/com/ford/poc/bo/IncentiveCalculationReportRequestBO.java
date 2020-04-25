@@ -13,10 +13,16 @@ public class IncentiveCalculationReportRequestBO {
 
 	List<String> dealerCodes;
 	
-	List<String> programCodes;
+	String programCode;
 	
-	String incentiveFrom;
+	String incentiveFromMonth;
 	
-	String incentiveTo;
+	String incentiveFromYear;
+	
+	String incentiveToMonth;
+	
+	String incentiveToYear;
+	
+	
 	
 }

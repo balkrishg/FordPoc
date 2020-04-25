@@ -75,7 +75,7 @@ public class IncentiveCalculation {
 	@Column(name = "TOTAL")
 	private int total;
 	
-	@Column(name = "DEALER_TARGET_MONTH")
-	private String dealerTargetMonth;
+	@Column(name = "DEALER_TARGET_PERIOD")
+	private String dealerTargetPeriod;
 
 }

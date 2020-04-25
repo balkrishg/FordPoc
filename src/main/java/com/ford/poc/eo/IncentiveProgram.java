@@ -32,5 +32,9 @@ public class IncentiveProgram {
 	  
 	  @Column(name = "DATE_TO", nullable = false)
 	  private Date dateTo;
+	  
+	  @Column(name = "PAYOUT_FREQUENCY", nullable = false)
+	  private String payoutFrequency;
+	  
 
 }
