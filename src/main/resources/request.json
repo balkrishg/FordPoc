@@ -12,3 +12,10 @@
     "incentiveToMonth": "DEC2019"
      
 }
+{ 
+    "dealerCodes": ["12000", "12200", "41700"],  
+    "programCode": "PC003",
+    "incentiveFromMonth": "JAN2018",
+    "incentiveToMonth": "DEC2019"
+     
+}
