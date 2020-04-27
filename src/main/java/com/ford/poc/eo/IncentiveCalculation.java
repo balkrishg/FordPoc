@@ -49,16 +49,16 @@ public class IncentiveCalculation {
 	private int noOfClaimsAllowed7;
 
 	@Column(name = "TARGET_ACHIEVED")
-	private int targetAchieved;
+	private Integer targetAchieved;
 
 	@Column(name = "TARGET")
-	private int target;
+	private Integer target;
 
 	@Column(name = "ACHIEVED_PERCENTAGE")
-	private int achievedPercentage;
+	private Integer achievedPercentage;
 
 	@Column(name = "INCENTIVE_CATEGORY")
-	private int incentiveCategory;
+	private String incentiveCategory;
 	
 	@Column(name = "AMOUNT_EARNED_CLAIMS_ALLOWED2")
 	private int amountEarnedCA2;

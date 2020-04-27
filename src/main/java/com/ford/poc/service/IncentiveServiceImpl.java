@@ -369,7 +369,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 							incCalculationSSP.setTargetAchieved(entry.getValue());
 						}
 
-						Integer incentiveCategorySSP = targetAchievedPercentageSSP >= 100 ? 100 : 0;
+						String incentiveCategorySSP = targetAchievedPercentageSSP >= 100 ? ">100%" : "<100%";
 
 						incCalculationSSP.setDealerCode(dealerCode);
 						incCalculationSSP.setDealerName(dealerTarget.getDealerName());
@@ -405,7 +405,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 									(double) (entry.getValue() / (double) dealerTarget.getDealerTargetOSP()) * 100);
 							incCalculationOSP.setTargetAchieved(entry.getValue());
 
-							Integer incentiveCategoryOSP = targetAchievedPercentageOSP >= 100.0 ? 100 : 0;
+							String incentiveCategoryOSP = targetAchievedPercentageOSP >= 100.0 ? ">100%" : "<100%";
 
 							incCalculationOSP.setDealerCode(dealerCode);
 							incCalculationOSP.setDealerName(dealerTarget.getDealerName());
@@ -497,12 +497,12 @@ public class IncentiveServiceImpl implements IncentiveService {
 							incCalculation.getNoOfClaimsAllowed4() + incCalBO.getNoOfClaimsAllowed4());
 					incCal.setNoOfClaimsAllowed7(
 							incCalculation.getNoOfClaimsAllowed7() + incCalBO.getNoOfClaimsAllowed7());
-					incCal.setTargetAchieved(incCalculation.getTargetAchieved() + incCalBO.getTargetAchieved());
-					incCal.setTarget(incCalculation.getTarget() + incCalBO.getTarget());
-					incCal.setAchievedPercentage(
-							incCalculation.getAchievedPercentage() + incCalBO.getAchievedPercentage());
-					incCal.setIncentiveCategory(
-							incCalculation.getIncentiveCategory() + incCalBO.getIncentiveCategory());
+					//incCal.setTargetAchieved(incCalculation.getTargetAchieved() + incCalBO.getTargetAchieved());
+					//incCal.setTarget(incCalculation.getTarget() + incCalBO.getTarget());
+					//incCal.setAchievedPercentage(
+					//		incCalculation.getAchievedPercentage() + incCalBO.getAchievedPercentage());
+					//incCal.setIncentiveCategory(
+					//		incCalculation.getIncentiveCategory() + incCalBO.getIncentiveCategory());
 					incCal.setAmountEarnedCA2(incCalculation.getAmountEarnedCA2() + incCalBO.getAmountEarnedCA2());
 					incCal.setAmountEarnedCA3(incCalculation.getAmountEarnedCA3() + incCalBO.getAmountEarnedCA3());
 					incCal.setAmountEarnedCA4(incCalculation.getAmountEarnedCA4() + incCalBO.getAmountEarnedCA4());
@@ -520,10 +520,10 @@ public class IncentiveServiceImpl implements IncentiveService {
 					incCal.setNoOfClaimsAllowed3(incCalculation.getNoOfClaimsAllowed3());
 					incCal.setNoOfClaimsAllowed4(incCalculation.getNoOfClaimsAllowed4());
 					incCal.setNoOfClaimsAllowed7(incCalculation.getNoOfClaimsAllowed7());
-					incCal.setTargetAchieved(incCalculation.getTargetAchieved());
-					incCal.setTarget(incCalculation.getTarget());
-					incCal.setAchievedPercentage(incCalculation.getAchievedPercentage());
-					incCal.setIncentiveCategory(incCalculation.getIncentiveCategory());
+					//incCal.setTargetAchieved(incCalculation.getTargetAchieved());
+					//incCal.setTarget(incCalculation.getTarget());
+					//incCal.setAchievedPercentage(incCalculation.getAchievedPercentage());
+					//incCal.setIncentiveCategory(incCalculation.getIncentiveCategory());
 					incCal.setAmountEarnedCA2(incCalculation.getAmountEarnedCA2());
 					incCal.setAmountEarnedCA3(incCalculation.getAmountEarnedCA3());
 					incCal.setAmountEarnedCA4(incCalculation.getAmountEarnedCA4());
