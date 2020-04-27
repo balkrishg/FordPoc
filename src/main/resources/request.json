@@ -1,0 +1,14 @@
+{ 
+    "dealerCodes": ["12000", "12200", "41700"],  
+    "programCode": "PC002",
+    "incentiveFromMonth": "APR2019",
+    "incentiveToMonth": "DEC2019"
+     
+}
+{ 
+    "dealerCodes": ["12000", "12200", "41700"],  
+    "programCode": "PC001",
+    "incentiveFromMonth": "OCT2019",
+    "incentiveToMonth": "DEC2019"
+     
+}
