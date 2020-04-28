@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.ford.poc.bo.IncentiveCalculationReportBO;
 import com.ford.poc.eo.IncentiveCalculation;
 import com.ford.poc.eo.IncentiveDealerDetails;
 import com.ford.poc.eo.IncentiveDealerTarget;
@@ -39,8 +40,8 @@ public interface IncentiveService {
 	public void saveIncentiveCalculationList(List<IncentiveCalculation> incCalculationList,
 			IncentiveDealerTarget dealerTarget);
 
-	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationList(List<String> dealerCode,
-			String programCode, String incentiveFromMonth, String incentiveToMonth) throws Exception;
+	public IncentiveCalculationReportBO getIncentiveCalculationList(List<String> dealerCode,
+			String programCode, String incentiveFrom, String incentiveFromYear, String incentiveTo, String incentiveToYear) throws Exception;
 
 	List<IncentiveDealerTarget> getDealerTargetByDealerCodeAndProgramCode(String dealerCode, String programCode);
 

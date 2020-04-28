@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ford.poc.bo.IncentiveCalculationReportBO;
 import com.ford.poc.bo.IncentiveCalculationReportRequestBO;
 import com.ford.poc.bo.IncentiveDealerCodesBO;
 import com.ford.poc.bo.IncentiveProgramBO;
@@ -181,12 +182,13 @@ public class IncentiveController {
 	}
 
 	@PostMapping("/getIncentiveCalculationReport")
-	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationReport(
+	public IncentiveCalculationReportBO getIncentiveCalculationReport(
 			@RequestBody IncentiveCalculationReportRequestBO reportRequest) throws Exception {
-
+		
 		return incentiveService.getIncentiveCalculationList(reportRequest.getDealerCodes(),
-				reportRequest.getProgramCode(), reportRequest.getIncentiveFromMonth(), 
-				reportRequest.getIncentiveToMonth());
+				reportRequest.getProgramCode(), reportRequest.getIncentiveFrom(), reportRequest.getIncentiveFromYear(), 
+				reportRequest.getIncentiveTo(),reportRequest.getIncentiveToYear());
+		
 	}
 
 }

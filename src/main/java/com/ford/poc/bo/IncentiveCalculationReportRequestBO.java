@@ -15,8 +15,12 @@ public class IncentiveCalculationReportRequestBO {
 	
 	String programCode;
 	
-	String incentiveFromMonth;
+	String incentiveFrom;//Q1 or OCT
 	
-	String incentiveToMonth;	
+	String incentiveFromYear;// 2018
+	
+	String incentiveTo;// Q3 or NOV
+	
+	String incentiveToYear;//2019
 	
 }

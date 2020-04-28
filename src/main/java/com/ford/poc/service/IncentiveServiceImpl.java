@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ford.poc.bo.IncentiveCalculationReportBO;
 import com.ford.poc.bo.IncentiveContractBO;
 import com.ford.poc.eo.IncentiveCalculation;
 import com.ford.poc.eo.IncentiveContractSales;
@@ -459,10 +460,12 @@ public class IncentiveServiceImpl implements IncentiveService {
 	// Note: This method is used only for POC purpose.
 	// To get the incentive calculation report for dealer based on static data only.
 	// Logic as to be completely changed for dynamic values.
-	public Map<String, List<IncentiveCalculation>> getIncentiveCalculationList(List<String> dealerCodes,
-			String programCode, String incentiveFromMonth, String incentiveToMonth) throws Exception {
+	public IncentiveCalculationReportBO getIncentiveCalculationList(List<String> dealerCodes,
+			String programCode, String incentiveFrom, String incentiveFromYear, String incentiveTo, String incentiveToYear) throws Exception {
+		List<String> errorMessages = new ArrayList<String>();
 		IncentiveProgram incProgram= getIncentiveProgram(programCode);
-		List<String> listOfMonths = getPeriodFromDateRange(incentiveFromMonth, incentiveToMonth, incProgram.getPayoutFrequency());
+		List<String> listOfMonths = getPeriodFromDateRange(incentiveFrom, incentiveFromYear, incentiveTo, incentiveToYear, incProgram.getPayoutFrequency());
+		//List<String> listOfMonths = getPeriodFromDateRange(incentiveFromMonth, incentiveToMonth, incProgram.getPayoutFrequency());
 		Map<String, List<IncentiveCalculation>> reportMap = new HashMap<String, List<IncentiveCalculation>>();
 		List<IncentiveCalculation> incCalculationListSSP = new ArrayList<IncentiveCalculation>();
 		List<IncentiveCalculation> incCalculationListOSP = new ArrayList<IncentiveCalculation>();
@@ -471,7 +474,11 @@ public class IncentiveServiceImpl implements IncentiveService {
 		for (String dealerTargetPeriod : listOfMonths) {
 			List<IncentiveCalculation> incCalculationList = incentiveCalculationRepository
 					.findByDealerCodesAndProgramCodesAndDealerTargetPeriod(dealerCodes, programCode, dealerTargetPeriod);
-
+			log.info("incCalcList.size(): "+incCalculationList.size()+" dealerTargetPeriod: "+dealerTargetPeriod);
+			if(incCalculationList.size()==0) {
+				log.info("DealerTarget not found for period: "+dealerTargetPeriod);
+				errorMessages.add("DealerTarget not found for period: "+dealerTargetPeriod);
+			}
 			String totalIncMapKey = null;
 			Map<String, IncentiveCalculation> totalIncMap = new HashMap<String, IncentiveCalculation>();
 			for (IncentiveCalculation incCalculation : incCalculationList) {
@@ -543,64 +550,107 @@ public class IncentiveServiceImpl implements IncentiveService {
 			reportMap.put("OSP", incCalculationListOSP);
 			reportMap.put("Total", incCalculationListTotal);
 		}
-		return reportMap;
+		IncentiveCalculationReportBO result=new IncentiveCalculationReportBO();
+		result.setReport(reportMap);
+		result.setErrorMessages(errorMessages);
+		return result;
 
 	}
 
-	public List<String> getPeriodFromDateRange(String incentiveFromMonth,String incentiveToMonth, String payoutFrequency) {
-			
-			DateFormat formater = new SimpleDateFormat("MMMyyyy");
-			List<String> listOfPeriods = new ArrayList<String>();
-			Calendar beginCalendar = Calendar.getInstance();
-			Calendar finishCalendar = Calendar.getInstance();
-	
-			try {
-				beginCalendar.setTime(formater.parse(incentiveFromMonth));
-				finishCalendar.setTime(formater.parse(incentiveToMonth));
-			} catch (ParseException e) {
-				e.printStackTrace();
+	public List<String> getPeriodFromDateRange(String incentiveFrom, String incentiveFromYear, String incentiveTo,
+			String incentiveToYear, String payoutFrequency) {
+		List<String> listOfPeriods = new ArrayList<String>();
+		if(IncentiveConstants.MONTHLY.equals(payoutFrequency)) {
+			if(incentiveTo==null || incentiveToYear==null) {
+				listOfPeriods.add(incentiveFrom+incentiveFromYear);							
 			}
-			int frequency=1;
-			if(IncentiveConstants.QUARTERLY.equals(payoutFrequency))
-				frequency=3;
-			else if(IncentiveConstants.BIMONTHLY.equals(payoutFrequency))
-				frequency=6;
-			else if(IncentiveConstants.YEARLY.equals(payoutFrequency))
-				frequency=12;
-			int i=1;
-			String period="";
-			while (beginCalendar.before(finishCalendar) || beginCalendar.equals(finishCalendar)) {
+			else {				
+				DateFormat formater = new SimpleDateFormat("MMMyyyy");
+				Calendar beginCalendar = Calendar.getInstance();
+				Calendar finishCalendar = Calendar.getInstance();
+
+				try {
+					beginCalendar.setTime(formater.parse(incentiveFrom+incentiveFromYear));
+					finishCalendar.setTime(formater.parse(incentiveTo+incentiveToYear));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
 				
-				String date = formater.format(beginCalendar.getTime()).toUpperCase();
-				if(IncentiveConstants.MONTHLY.equals(payoutFrequency)) {
+				while (beginCalendar.before(finishCalendar) || beginCalendar.equals(finishCalendar)) {
+					
+					String date = formater.format(beginCalendar.getTime()).toUpperCase();
 					listOfPeriods.add(date);
-					log.info("period"+ date);
+					log.info("period"+ date);					
+					beginCalendar.add(Calendar.MONTH, 1);
+					
 				}
-				else {
-					if(i==1) {
-						period=date;	
-						i++;
-					}
-					else if(i==frequency) {
-						period=period+"-"+date;
-						listOfPeriods.add(period);
-						log.info("period"+ period);
-						i=1;
-						period="";
-					}
-					else {
-						i++;
-					}
-				}
-				beginCalendar.add(Calendar.MONTH, 1);
 				
 			}
+		}
+		else if(IncentiveConstants.QUARTERLY.equals(payoutFrequency)) {
+			if(incentiveTo==null || incentiveToYear==null) {
+				listOfPeriods.add(getPeriodFromQuarter(incentiveFrom,incentiveFromYear));
+			}
+			else {				
+				boolean exit=false;
+				String tempQuarter=incentiveFrom;
+				String tempYear=incentiveFromYear;
+				listOfPeriods.add(getPeriodFromQuarter(incentiveFrom,incentiveFromYear));
+				while(!exit) {					
+					tempQuarter=getNextQuarter(tempQuarter);
+					if(IncentiveConstants.Q1.equals(tempQuarter)) {
+						tempYear=getNextYear(tempYear);
+					}
+					listOfPeriods.add(getPeriodFromQuarter(tempQuarter,tempYear));
+					if(tempQuarter.equals(incentiveTo) && tempYear.equals(incentiveToYear)) {
+						exit=true;
+					}
+				}
+			}
 			
-		
-		return listOfPeriods;
+		}
+	return listOfPeriods;
 	}
 	
-		
+	private String getNextYear(String year) {
+		Integer nextYear=Integer.parseInt(year)+1;
+		return nextYear.toString();
+	}
+
+	private String getNextQuarter(String quarter) {
+		String nextQuarter=null;
+		if(IncentiveConstants.Q1.equals(quarter)) {
+			nextQuarter=IncentiveConstants.Q2;
+		}
+		else if(IncentiveConstants.Q2.equals(quarter)) {
+			nextQuarter=IncentiveConstants.Q3;
+		}
+		else if(IncentiveConstants.Q3.equals(quarter)) {
+			nextQuarter=IncentiveConstants.Q4;
+		}
+		else if(IncentiveConstants.Q4.equals(quarter)) {
+			nextQuarter=IncentiveConstants.Q1;
+		}
+		return nextQuarter;
+	}
+
+	private String getPeriodFromQuarter(String quarter, String year) {
+		String period=null;
+		if(IncentiveConstants.Q1.equals(quarter)) {
+			period=IncentiveConstants.Q1_PERIOD.replace("<Year>", year);
+		}
+		else if(IncentiveConstants.Q2.equals(quarter)) {
+			period=IncentiveConstants.Q2_PERIOD.replace("<Year>", year);
+		}
+		else if(IncentiveConstants.Q3.equals(quarter)) {
+			period=IncentiveConstants.Q3_PERIOD.replace("<Year>", year);
+		}
+		else if(IncentiveConstants.Q4.equals(quarter)) {
+			period=IncentiveConstants.Q4_PERIOD.replace("<Year>", year);
+		}
+		return period;
+	}
+
 	private List<Date> getFromAndTodate(String fromMonthYear, String toMonthYear) {
 		Date date1 = null;
 		Date date2 = null;
