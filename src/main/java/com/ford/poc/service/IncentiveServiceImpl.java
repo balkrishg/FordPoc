@@ -463,6 +463,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 	public IncentiveCalculationReportBO getIncentiveCalculationList(List<String> dealerCodes,
 			String programCode, String incentiveFrom, String incentiveFromYear, String incentiveTo, String incentiveToYear) throws Exception {
 		List<String> errorMessages = new ArrayList<String>();
+		
 		IncentiveProgram incProgram= getIncentiveProgram(programCode);
 		List<String> listOfMonths = getPeriodFromDateRange(incentiveFrom, incentiveFromYear, incentiveTo, incentiveToYear, incProgram.getPayoutFrequency());
 		//List<String> listOfMonths = getPeriodFromDateRange(incentiveFromMonth, incentiveToMonth, incProgram.getPayoutFrequency());
@@ -475,13 +476,13 @@ public class IncentiveServiceImpl implements IncentiveService {
 			List<IncentiveCalculation> incCalculationList = incentiveCalculationRepository
 					.findByDealerCodesAndProgramCodesAndDealerTargetPeriod(dealerCodes, programCode, dealerTargetPeriod);
 			log.info("incCalcList.size(): "+incCalculationList.size()+" dealerTargetPeriod: "+dealerTargetPeriod);
-			if(incCalculationList.size()==0) {
-				log.info("DealerTarget not found for period: "+dealerTargetPeriod);
-				errorMessages.add("DealerTarget not found for period: "+dealerTargetPeriod);
-			}
+			
+			List<String> errorDealerCodes=new ArrayList<String>();
+			errorDealerCodes=dealerCodes;
 			String totalIncMapKey = null;
 			Map<String, IncentiveCalculation> totalIncMap = new HashMap<String, IncentiveCalculation>();
 			for (IncentiveCalculation incCalculation : incCalculationList) {
+				errorDealerCodes.remove(incCalculation.getDealerCode());
 				if (incCalculation.getSubProductType().equals("SSP")) {
 					incCalculationListSSP.add(incCalculation);
 				} else if (incCalculation.getSubProductType().equals("OSP")) {
@@ -541,7 +542,9 @@ public class IncentiveServiceImpl implements IncentiveService {
 					totalIncMap.put(totalIncMapKey, incCal);
 				}
 			}
-
+			if(errorDealerCodes.size()!=0) {
+				errorMessages.add("DealerTarget not available for the period "+ dealerTargetPeriod + "for the dealer codes"+errorDealerCodes);
+			}
 			for (Map.Entry<String, IncentiveCalculation> totalIncentive : totalIncMap.entrySet()) {
 				incCalculationListTotal.add(totalIncentive.getValue());
 			}
