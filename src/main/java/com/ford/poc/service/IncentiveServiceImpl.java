@@ -599,7 +599,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 				String tempQuarter=incentiveFrom;
 				String tempYear=incentiveFromYear;
 				listOfPeriods.add(getPeriodFromQuarter(incentiveFrom,incentiveFromYear));
-				while(!exit) {					
+				while(!(tempQuarter.equals(incentiveTo) && tempYear.equals(incentiveToYear))) {					
 					tempQuarter=getNextQuarter(tempQuarter);
 					if(IncentiveConstants.Q1.equals(tempQuarter)) {
 						tempYear=getNextYear(tempYear);
