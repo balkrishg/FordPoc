@@ -174,6 +174,7 @@ public class IncentiveController {
 	public String calculateIncentiveForAllDealers() throws Exception {
 		List<IncentiveCalculation> incCalculationList = new ArrayList<IncentiveCalculation>();
 		List<IncentiveDealerDetails> incDealerDetailsList = incentiveService.getAllDealerCodes();
+		incentiveService.deleteAllIncentiveCalculationList();
 		for(IncentiveDealerDetails incDealer: incDealerDetailsList) {
 			  incCalculationList.addAll(incentiveService.calculateIncentiveForParticularDealer(incDealer.getDealerCode()));
 			  incentiveService.saveIncentiveCalculationList(incCalculationList); 

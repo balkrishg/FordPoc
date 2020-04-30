@@ -202,6 +202,12 @@ public class IncentiveServiceImpl implements IncentiveService {
 		}
 		incentiveCalculationRepository.saveAll(incCalculationList);
 	}
+	@Override
+	public void deleteAllIncentiveCalculationList() {
+		
+			incentiveCalculationRepository.deleteAll();
+		
+	}
 
 	// Note: This method is used only for POC purpose.
 	// To calculate the incentive for dealer based on static data only.

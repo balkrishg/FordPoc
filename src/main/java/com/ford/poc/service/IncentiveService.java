@@ -47,6 +47,8 @@ public interface IncentiveService {
 
 	void saveIncentiveCalculationList(List<IncentiveCalculation> incCalculationList);
 
+	void deleteAllIncentiveCalculationList();
+
 	//List<IncentiveCalculation> calculateIncentiveForParticularDealer(String dealerCode, String dealerTargetMonth);
 
 	//public List<IncentiveDealerTarget> getDealerTargetByDealerCode(String dealerCode);
