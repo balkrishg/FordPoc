@@ -478,7 +478,7 @@ public class IncentiveServiceImpl implements IncentiveService {
 			log.info("incCalcList.size(): "+incCalculationList.size()+" dealerTargetPeriod: "+dealerTargetPeriod);
 			
 			List<String> errorDealerCodes=new ArrayList<String>();
-			errorDealerCodes=dealerCodes;
+			errorDealerCodes.addAll(dealerCodes);
 			String totalIncMapKey = null;
 			Map<String, IncentiveCalculation> totalIncMap = new HashMap<String, IncentiveCalculation>();
 			for (IncentiveCalculation incCalculation : incCalculationList) {
