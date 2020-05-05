@@ -549,7 +549,28 @@ public class IncentiveServiceImpl implements IncentiveService {
 				}
 			}
 			if(errorDealerCodes.size()!=0) {
-				errorMessages.add("DealerTarget not available for the period "+ dealerTargetPeriod + "for the dealer codes"+errorDealerCodes);
+				List<String> errorDealerCodes1=new ArrayList<String>();
+				List<String> errorDealerCodes2=new ArrayList<String>();
+				for(String dealerCode:errorDealerCodes) {
+					String dealerTargetFromMonth=dealerTargetPeriod;
+					String dealerTargetToMonth=null;
+					if(IncentiveConstants.QUARTERLY.equals(incProgram.getPayoutFrequency()) && dealerTargetPeriod!=null){
+						dealerTargetFromMonth=dealerTargetPeriod.substring(0,dealerTargetPeriod.indexOf("-"));
+						dealerTargetToMonth=dealerTargetPeriod.substring(dealerTargetPeriod.indexOf("-")+1,dealerTargetPeriod.length());
+					}
+					
+					IncentiveDealerTarget dealerTarget=incentiveDealerTargetRepository.findByDealerCodeAndDealerTargetMonthFromAndDealerTargetMonthTo(dealerCode, dealerTargetFromMonth, dealerTargetToMonth);
+					if(dealerTarget==null)
+						errorDealerCodes1.add(dealerCode);
+					else {
+						errorDealerCodes2.add(dealerCode);
+					}
+				}
+				if(errorDealerCodes1.size()>0)
+					errorMessages.add("Dealer Target not available for the period "+ dealerTargetPeriod + " for the dealer codes "+errorDealerCodes1);	
+				if(errorDealerCodes2.size()>0)
+					errorMessages.add("Could not find sales data for the dealer codes "+errorDealerCodes2+
+							" for the period "+dealerTargetPeriod+" matching the incentive structure rules.");	
 			}
 			for (Map.Entry<String, IncentiveCalculation> totalIncentive : totalIncMap.entrySet()) {
 				incCalculationListTotal.add(totalIncentive.getValue());
